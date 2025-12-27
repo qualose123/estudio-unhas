@@ -27,7 +27,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Apenas redirecionar para login se for erro 401 em rotas autenticadas
+    // Não redirecionar em erros de login/registro (credenciais inválidas)
+    const isAuthEndpoint = error.config?.url?.includes('/auth/admin/login') ||
+                          error.config?.url?.includes('/auth/client/login') ||
+                          error.config?.url?.includes('/auth/client/register');
+
+    if (error.response?.status === 401 && !isAuthEndpoint) {
+      // Token inválido/expirado - redirecionar para login
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';

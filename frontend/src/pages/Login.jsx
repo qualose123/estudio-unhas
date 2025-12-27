@@ -18,6 +18,8 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [blockedUntil, setBlockedUntil] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,6 +39,23 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Verificar se está bloqueado
+    if (blockedUntil) {
+      const now = new Date().getTime();
+      if (now < blockedUntil) {
+        const remainingMinutes = Math.ceil((blockedUntil - now) / 60000);
+        toast.error(`Muitas tentativas. Tente novamente em ${remainingMinutes} minuto(s)`, {
+          duration: 5000,
+          position: 'top-center'
+        });
+        return;
+      } else {
+        // Desbloquear
+        setBlockedUntil(null);
+        setLoginAttempts(0);
+      }
+    }
+
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -52,6 +71,10 @@ const Login = () => {
       const { token, user } = response.data;
       login(user, token);
 
+      // Resetar tentativas em caso de sucesso
+      setLoginAttempts(0);
+      setBlockedUntil(null);
+
       toast.success(`Bem-vindo(a), ${user.name}!`);
 
       // Redirecionar baseado no tipo de usuário
@@ -65,13 +88,29 @@ const Login = () => {
 
       // Se for erro 401 (não autorizado), sempre mostrar mensagem genérica
       if (error.response?.status === 401) {
-        toast.error('Email ou senha inválidos', {
-          duration: 4000, // Duração de 4 segundos
-          position: 'top-center'
-        });
-        setErrors({
-          password: 'Verifique suas credenciais'
-        });
+        const newAttempts = loginAttempts + 1;
+        setLoginAttempts(newAttempts);
+
+        // Após 5 tentativas, bloquear por 15 minutos
+        if (newAttempts >= 5) {
+          const blockTime = new Date().getTime() + (15 * 60 * 1000); // 15 minutos
+          setBlockedUntil(blockTime);
+          toast.error('Muitas tentativas falhas. Bloqueado por 15 minutos', {
+            duration: 6000,
+            position: 'top-center'
+          });
+          setErrors({
+            password: 'Conta temporariamente bloqueada'
+          });
+        } else {
+          toast.error(`Email ou senha inválidos (${newAttempts}/5 tentativas)`, {
+            duration: 4000,
+            position: 'top-center'
+          });
+          setErrors({
+            password: 'Verifique suas credenciais'
+          });
+        }
       } else {
         toast.error(error.response?.data?.error || 'Erro ao fazer login');
       }
