@@ -62,7 +62,17 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Erro no login:', error);
-      toast.error(error.response?.data?.error || 'Erro ao fazer login');
+
+      // Se for erro 401 (não autorizado), sempre mostrar mensagem genérica
+      if (error.response?.status === 401) {
+        toast.error('Email ou senha inválidos');
+        setErrors({
+          email: ' ',
+          password: 'Verifique suas credenciais'
+        });
+      } else {
+        toast.error(error.response?.data?.error || 'Erro ao fazer login');
+      }
     } finally {
       setLoading(false);
     }
