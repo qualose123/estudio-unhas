@@ -109,8 +109,23 @@ const Login = () => {
     } catch (error) {
       console.error('Erro no login:', error);
 
+      // Se for erro 429 (Too Many Requests - bloqueio do backend)
+      if (error.response?.status === 429) {
+        const retryAfter = error.response?.data?.retryAfter || '15 minuto(s)';
+        toast.error(`Muitas tentativas de login. Tente novamente em ${retryAfter}`, {
+          duration: 6000,
+          position: 'top-center'
+        });
+        setErrors({
+          password: 'Bloqueado pelo servidor - proteção de segurança'
+        });
+        // Sincronizar bloqueio do backend com frontend
+        const blockTime = new Date().getTime() + (15 * 60 * 1000);
+        updateBlockedUntil(blockTime);
+        updateLoginAttempts(5);
+      }
       // Se for erro 401 (não autorizado), sempre mostrar mensagem genérica
-      if (error.response?.status === 401) {
+      else if (error.response?.status === 401) {
         const newAttempts = loginAttempts + 1;
         updateLoginAttempts(newAttempts);
 

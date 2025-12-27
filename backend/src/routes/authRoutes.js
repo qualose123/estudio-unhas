@@ -4,14 +4,15 @@ const authController = require('../controllers/authController');
 const { verifyToken } = require('../middleware/auth');
 const { validateLogin, validateRegister } = require('../middleware/validators');
 const auditLog = require('../middleware/auditLog');
+const loginRateLimiter = require('../middleware/loginRateLimiter');
 const passport = require('../config/passport');
 const jwt = require('jsonwebtoken');
 
-// Login Admin
-router.post('/admin/login', validateLogin, auditLog('admin_login'), authController.adminLogin);
+// Login Admin - Com rate limiting (5 tentativas/15min por IP)
+router.post('/admin/login', loginRateLimiter, validateLogin, auditLog('admin_login'), authController.adminLogin);
 
-// Login Cliente
-router.post('/client/login', validateLogin, auditLog('client_login'), authController.clientLogin);
+// Login Cliente - Com rate limiting (5 tentativas/15min por IP)
+router.post('/client/login', loginRateLimiter, validateLogin, auditLog('client_login'), authController.clientLogin);
 
 // Registro de Cliente
 router.post('/client/register', validateRegister, auditLog('client_register'), authController.clientRegister);
