@@ -1,25 +1,38 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// Configurar transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT),
-  secure: process.env.EMAIL_SECURE === 'true',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-  }
-});
+let emailEnabled = false;
+let transporter = null;
 
-// Verificar conexão ao iniciar
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('Erro na configuração do email:', error);
-  } else {
-    console.log('Servidor de email pronto para enviar mensagens');
-  }
-});
+// Configurar transporter apenas se as credenciais estiverem disponíveis
+if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+  transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: parseInt(process.env.EMAIL_PORT),
+    secure: process.env.EMAIL_SECURE === 'true',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD
+    },
+    connectionTimeout: 10000, // 10 segundos
+    greetingTimeout: 10000,
+    socketTimeout: 10000
+  });
+
+  // Verificar conexão ao iniciar (sem bloquear o servidor)
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error('⚠️  Erro na configuração do email:', error.message);
+      console.warn('⚠️  Funcionalidade de email desabilitada - verifique as configurações SMTP');
+      emailEnabled = false;
+    } else {
+      console.log('✅ Servidor de email pronto para enviar mensagens');
+      emailEnabled = true;
+    }
+  });
+} else {
+  console.warn('⚠️  Credenciais de email não configuradas - funcionalidade de email desabilitada');
+}
 
 // Enviar email de recuperação de senha
 const sendPasswordResetEmail = async (email, name, code) => {
@@ -96,12 +109,17 @@ const sendPasswordResetEmail = async (email, name, code) => {
     `
   };
 
+  if (!emailEnabled || !transporter) {
+    console.warn('⚠️  Email não configurado - não foi possível enviar email de recuperação');
+    throw new Error('Serviço de email não disponível no momento');
+  }
+
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email de recuperação enviado:', info.messageId);
+    console.log('✅ Email de recuperação enviado:', info.messageId);
     return info;
   } catch (error) {
-    console.error('Erro ao enviar email:', error);
+    console.error('❌ Erro ao enviar email:', error.message);
     throw error;
   }
 };
@@ -183,12 +201,17 @@ const sendAppointmentConfirmation = async (email, name, appointmentDetails) => {
     `
   };
 
+  if (!emailEnabled || !transporter) {
+    console.warn('⚠️  Email não configurado - não foi possível enviar confirmação de agendamento');
+    throw new Error('Serviço de email não disponível no momento');
+  }
+
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email de confirmação enviado:', info.messageId);
+    console.log('✅ Email de confirmação enviado:', info.messageId);
     return info;
   } catch (error) {
-    console.error('Erro ao enviar email:', error);
+    console.error('❌ Erro ao enviar email:', error.message);
     throw error;
   }
 };
