@@ -55,7 +55,22 @@ app.use(helmet());
  * Em produção, configure FRONTEND_URL para o domínio real
  */
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,
+      'http://localhost:3000',
+      'http://localhost:5173'
+    ].filter(Boolean);
+
+    // Permite requisições sem origin (como apps mobile ou Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Não permitido pelo CORS'));
+    }
+  },
   credentials: true, // Permite envio de cookies e credenciais
   optionsSuccessStatus: 200
 };
