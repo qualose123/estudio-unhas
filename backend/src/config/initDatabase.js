@@ -140,33 +140,37 @@ const initDatabase = () => {
       db.run('CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_type, user_id)');
 
       // Inserir admin padrão se não existir
-      const defaultAdminEmail = 'admin@estudiounhas.com';
-      const defaultAdminPassword = 'Admin@123';
+      const defaultAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@estudiounhas.com';
+      const defaultAdminPassword = process.env.DEFAULT_ADMIN_PASSWORD;
 
-      db.get('SELECT id FROM admins WHERE email = ?', [defaultAdminEmail], async (err, row) => {
-        if (err) {
-          console.error('Erro ao verificar admin padrão:', err);
-          return;
-        }
+      // Só cria admin padrão se a senha estiver configurada no .env
+      if (defaultAdminPassword) {
+        db.get('SELECT id FROM admins WHERE email = ?', [defaultAdminEmail], async (err, row) => {
+          if (err) {
+            console.error('Erro ao verificar admin padrão:', err);
+            return;
+          }
 
-        if (!row) {
-          const hashedPassword = await bcrypt.hash(defaultAdminPassword, 10);
-          db.run(
-            'INSERT INTO admins (name, email, password) VALUES (?, ?, ?)',
-            ['Administrador', defaultAdminEmail, hashedPassword],
-            (err) => {
-              if (err) {
-                console.error('Erro ao criar admin padrão:', err);
-              } else {
-                console.log('Admin padrão criado com sucesso!');
-                console.log(`Email: ${defaultAdminEmail}`);
-                console.log(`Senha: ${defaultAdminPassword}`);
-                console.log('IMPORTANTE: Altere a senha após o primeiro login!');
+          if (!row) {
+            const hashedPassword = await bcrypt.hash(defaultAdminPassword, 10);
+            db.run(
+              'INSERT INTO admins (name, email, password) VALUES (?, ?, ?)',
+              ['Administrador', defaultAdminEmail, hashedPassword],
+              (err) => {
+                if (err) {
+                  console.error('Erro ao criar admin padrão:', err);
+                } else {
+                  console.log('✅ Admin padrão criado com sucesso!');
+                  console.log(`📧 Email: ${defaultAdminEmail}`);
+                  console.log('⚠️  IMPORTANTE: Altere a senha após o primeiro login!');
+                }
               }
-            }
-          );
-        }
-      });
+            );
+          }
+        });
+      } else {
+        console.warn('⚠️  DEFAULT_ADMIN_PASSWORD não configurado - admin padrão não foi criado');
+      }
 
       // Inserir serviços de exemplo se não existirem
       db.get('SELECT COUNT(*) as count FROM services', [], (err, row) => {

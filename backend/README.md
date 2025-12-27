@@ -86,10 +86,10 @@ npm run init-db
 
 Isso criará:
 - Todas as tabelas
-- Um admin padrão (email: `admin@estudiounhas.com`, senha: `Admin@123`)
+- Um admin padrão (se `DEFAULT_ADMIN_PASSWORD` estiver configurado no `.env`)
 - Serviços de exemplo
 
-**⚠️ IMPORTANTE: Altere a senha do admin após o primeiro login!**
+**⚠️ IMPORTANTE: Configure `DEFAULT_ADMIN_PASSWORD` no `.env` para criar o admin padrão**
 
 ### 4. Executar em desenvolvimento
 
@@ -124,7 +124,7 @@ Content-Type: application/json
 
 {
   "email": "admin@estudiounhas.com",
-  "password": "Admin@123"
+  "password": "SuaSenhaConfiguradaNoEnv"
 }
 ```
 
