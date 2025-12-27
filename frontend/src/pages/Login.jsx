@@ -65,9 +65,11 @@ const Login = () => {
 
       // Se for erro 401 (não autorizado), sempre mostrar mensagem genérica
       if (error.response?.status === 401) {
-        toast.error('Email ou senha inválidos');
+        toast.error('Email ou senha inválidos', {
+          duration: 4000, // Duração de 4 segundos
+          position: 'top-center'
+        });
         setErrors({
-          email: ' ',
           password: 'Verifique suas credenciais'
         });
       } else {
