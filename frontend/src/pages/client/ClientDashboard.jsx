@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Plus, History, User } from 'lucide-react';
+import { Calendar, Clock, Plus, History, User, Lock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
@@ -8,12 +8,14 @@ import Loading from '../../components/Loading';
 import { appointmentsAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import NewAppointmentModal from './NewAppointmentModal';
+import ChangePasswordModal from '../../components/ChangePasswordModal';
 
 const ClientDashboard = () => {
   const { user } = useAuth();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNewAppointmentModal, setShowNewAppointmentModal] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all', 'pending', 'confirmed', 'completed', 'cancelled'
 
   useEffect(() => {
@@ -95,10 +97,21 @@ const ClientDashboard = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-gradient mb-2">
-            Olá, {user?.name}!
-          </h1>
-          <p className="text-neutral-600">Gerencie seus agendamentos e acompanhe seu histórico</p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-display font-bold text-gradient mb-2">
+                Olá, {user?.name}!
+              </h1>
+              <p className="text-neutral-600">Gerencie seus agendamentos e acompanhe seu histórico</p>
+            </div>
+            <Button
+              variant="secondary"
+              icon={Lock}
+              onClick={() => setShowChangePasswordModal(true)}
+            >
+              Trocar Senha
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -258,6 +271,14 @@ const ClientDashboard = () => {
             setShowNewAppointmentModal(false);
             fetchAppointments();
           }}
+        />
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePasswordModal && (
+        <ChangePasswordModal
+          onClose={() => setShowChangePasswordModal(false)}
+          onSuccess={() => setShowChangePasswordModal(false)}
         />
       )}
     </div>

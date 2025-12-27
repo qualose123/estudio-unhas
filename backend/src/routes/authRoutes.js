@@ -19,6 +19,9 @@ router.post('/client/register', validateRegister, auditLog('client_register'), a
 // Verificar token
 router.get('/verify', verifyToken, authController.verifyTokenEndpoint);
 
+// Alterar senha (requer autenticação)
+router.post('/change-password', verifyToken, authController.changePassword);
+
 // Google OAuth Routes
 router.get('/google', (req, res, next) => {
   const prompt = req.query.prompt || 'consent';

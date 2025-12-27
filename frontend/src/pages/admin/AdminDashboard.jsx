@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Users, Sparkles, Settings, Lock, Package, Clock } from 'lucide-react';
+import { Calendar, Users, Sparkles, Settings, Lock, Package, Clock, Key } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
@@ -9,6 +9,7 @@ import { appointmentsAPI, servicesAPI, timeBlocksAPI } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext';
 import ServiceManagementModal from './ServiceManagementModal';
 import TimeBlockModal from './TimeBlockModal';
+import ChangePasswordModal from '../../components/ChangePasswordModal';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -18,6 +19,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('appointments'); // 'appointments', 'services', 'blocks'
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [showBlockModal, setShowBlockModal] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [filter, setFilter] = useState('all');
 
@@ -106,10 +108,21 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-gradient mb-2">
-            Painel Administrativo
-          </h1>
-          <p className="text-neutral-600">Gerencie agendamentos, serviços e horários</p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-display font-bold text-gradient mb-2">
+                Painel Administrativo
+              </h1>
+              <p className="text-neutral-600">Gerencie agendamentos, serviços e horários</p>
+            </div>
+            <Button
+              variant="secondary"
+              icon={Key}
+              onClick={() => setShowChangePasswordModal(true)}
+            >
+              Trocar Senha
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -394,6 +407,13 @@ const AdminDashboard = () => {
             setShowBlockModal(false);
             fetchData();
           }}
+        />
+      )}
+
+      {showChangePasswordModal && (
+        <ChangePasswordModal
+          onClose={() => setShowChangePasswordModal(false)}
+          onSuccess={() => setShowChangePasswordModal(false)}
         />
       )}
     </div>

@@ -135,9 +135,68 @@ const verifyTokenEndpoint = (req, res) => {
   });
 };
 
+/**
+ * Alterar senha - Usuário Logado
+ * Permite que o usuário autenticado altere sua própria senha
+ */
+const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user.id;
+  const userType = req.user.type;
+
+  // Validações
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Senha atual e nova senha são obrigatórias' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: 'Nova senha deve ter no mínimo 6 caracteres' });
+  }
+
+  if (currentPassword === newPassword) {
+    return res.status(400).json({ error: 'A nova senha deve ser diferente da atual' });
+  }
+
+  const table = userType === 'admin' ? 'admins' : 'clients';
+
+  // Buscar usuário
+  db.get(`SELECT * FROM ${table} WHERE id = ?`, [userId], async (err, user) => {
+    if (err) {
+      return res.status(500).json({ error: 'Erro no servidor' });
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    // Verificar senha atual
+    const validPassword = await bcrypt.compare(currentPassword, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Senha atual incorreta' });
+    }
+
+    // Hash da nova senha
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Atualizar senha
+    db.run(
+      `UPDATE ${table} SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+      [hashedPassword, userId],
+      function (err) {
+        if (err) {
+          return res.status(500).json({ error: 'Erro ao atualizar senha' });
+        }
+
+        res.json({ message: 'Senha alterada com sucesso' });
+      }
+    );
+  });
+};
+
 module.exports = {
   adminLogin,
   clientLogin,
   clientRegister,
-  verifyTokenEndpoint
+  verifyTokenEndpoint,
+  changePassword
 };

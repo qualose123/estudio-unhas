@@ -41,7 +41,8 @@ export const authAPI = {
   adminLogin: (credentials) => api.post('/auth/admin/login', credentials),
   clientLogin: (credentials) => api.post('/auth/client/login', credentials),
   clientRegister: (data) => api.post('/auth/client/register', data),
-  verifyToken: () => api.get('/auth/verify')
+  verifyToken: () => api.get('/auth/verify'),
+  changePassword: (data) => api.post('/auth/change-password', data)
 };
 
 // Services endpoints
