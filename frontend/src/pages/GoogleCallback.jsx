@@ -19,10 +19,8 @@ export default function GoogleCallback() {
         // Salva o token e os dados do usuário usando a função login do AuthContext
         login(user, token);
 
-        toast.success(`Bem-vindo(a), ${user.name}! Login com Google realizado com sucesso.`);
-
-        // Redireciona para o dashboard do cliente
-        navigate('/client/dashboard');
+        // Redireciona para o dashboard do cliente (toast será exibido lá)
+        navigate('/client/dashboard', { replace: true });
       } catch (error) {
         console.error('Erro ao processar login do Google:', error);
         toast.error('Erro ao processar login. Tente novamente.');

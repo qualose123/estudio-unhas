@@ -18,6 +18,18 @@ const ClientDashboard = () => {
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all', 'pending', 'confirmed', 'completed', 'cancelled'
 
+  // Mostrar mensagem de boas-vindas apenas uma vez após login
+  useEffect(() => {
+    const hasShownWelcome = sessionStorage.getItem('welcomeShown');
+    if (!hasShownWelcome && user) {
+      toast.success(`Bem-vindo(a), ${user.name}!`, {
+        duration: 3000,
+        position: 'top-center'
+      });
+      sessionStorage.setItem('welcomeShown', 'true');
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchAppointments();
   }, []);

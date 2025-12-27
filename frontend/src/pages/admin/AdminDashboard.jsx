@@ -23,6 +23,18 @@ const AdminDashboard = () => {
   const [editingService, setEditingService] = useState(null);
   const [filter, setFilter] = useState('all');
 
+  // Mostrar mensagem de boas-vindas apenas uma vez após login
+  useEffect(() => {
+    const hasShownWelcome = sessionStorage.getItem('welcomeShown');
+    if (!hasShownWelcome && user) {
+      toast.success(`Bem-vindo(a), ${user.name}!`, {
+        duration: 3000,
+        position: 'top-center'
+      });
+      sessionStorage.setItem('welcomeShown', 'true');
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchData();
   }, []);

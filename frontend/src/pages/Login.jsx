@@ -98,9 +98,10 @@ const Login = () => {
       updateLoginAttempts(0);
       updateBlockedUntil(null);
 
-      toast.success(`Bem-vindo(a), ${user.name}!`);
+      // Limpar flag de welcome para mostrar mensagem no dashboard
+      sessionStorage.removeItem('welcomeShown');
 
-      // Redirecionar baseado no tipo de usuário
+      // Redirecionar baseado no tipo de usuário (toast será exibido no dashboard)
       if (user.type === 'admin') {
         navigate('/admin/dashboard');
       } else {
