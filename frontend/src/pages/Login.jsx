@@ -18,14 +18,37 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [loginAttempts, setLoginAttempts] = useState(0);
-  const [blockedUntil, setBlockedUntil] = useState(null);
+
+  // Carregar tentativas e bloqueio do localStorage
+  const [loginAttempts, setLoginAttempts] = useState(() => {
+    const saved = localStorage.getItem('loginAttempts');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+  const [blockedUntil, setBlockedUntil] = useState(() => {
+    const saved = localStorage.getItem('blockedUntil');
+    return saved ? parseInt(saved, 10) : null;
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Atualizar localStorage quando tentativas ou bloqueio mudarem
+  const updateLoginAttempts = (attempts) => {
+    setLoginAttempts(attempts);
+    localStorage.setItem('loginAttempts', attempts.toString());
+  };
+
+  const updateBlockedUntil = (timestamp) => {
+    setBlockedUntil(timestamp);
+    if (timestamp) {
+      localStorage.setItem('blockedUntil', timestamp.toString());
+    } else {
+      localStorage.removeItem('blockedUntil');
     }
   };
 
@@ -51,8 +74,8 @@ const Login = () => {
         return;
       } else {
         // Desbloquear
-        setBlockedUntil(null);
-        setLoginAttempts(0);
+        updateBlockedUntil(null);
+        updateLoginAttempts(0);
       }
     }
 
@@ -72,8 +95,8 @@ const Login = () => {
       login(user, token);
 
       // Resetar tentativas em caso de sucesso
-      setLoginAttempts(0);
-      setBlockedUntil(null);
+      updateLoginAttempts(0);
+      updateBlockedUntil(null);
 
       toast.success(`Bem-vindo(a), ${user.name}!`);
 
@@ -89,12 +112,12 @@ const Login = () => {
       // Se for erro 401 (não autorizado), sempre mostrar mensagem genérica
       if (error.response?.status === 401) {
         const newAttempts = loginAttempts + 1;
-        setLoginAttempts(newAttempts);
+        updateLoginAttempts(newAttempts);
 
         // Após 5 tentativas, bloquear por 15 minutos
         if (newAttempts >= 5) {
           const blockTime = new Date().getTime() + (15 * 60 * 1000); // 15 minutos
-          setBlockedUntil(blockTime);
+          updateBlockedUntil(blockTime);
           toast.error('Muitas tentativas falhas. Bloqueado por 15 minutos', {
             duration: 6000,
             position: 'top-center'
