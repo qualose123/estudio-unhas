@@ -35,6 +35,12 @@ const passwordResetRoutes = require('./routes/passwordResetRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Configurar trust proxy para ambientes de produção (Railway, Heroku, etc)
+// Necessário para rate limiting e logs corretos de IP
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 /* ========================================
    MIDDLEWARES DE SEGURANÇA
    ======================================== */
