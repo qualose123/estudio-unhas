@@ -205,6 +205,19 @@ const updateAppointment = (req, res) => {
       return res.status(403).json({ error: 'Apenas administradores podem alterar o status do agendamento' });
     }
 
+    // Verificar antecedência mínima para cancelamento (24 horas)
+    if (!isAdmin && status === 'cancelled') {
+      const appointmentDateTime = new Date(`${appointment.appointment_date}T${appointment.appointment_time}`);
+      const now = new Date();
+      const hoursUntilAppointment = (appointmentDateTime - now) / (1000 * 60 * 60);
+
+      if (hoursUntilAppointment < 24) {
+        return res.status(400).json({
+          error: 'Cancelamento não permitido. É necessário no mínimo 24 horas de antecedência para cancelar um agendamento.'
+        });
+      }
+    }
+
     const updates = [];
     const params = [];
 
