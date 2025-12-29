@@ -38,6 +38,7 @@ const recurringAppointmentRoutes = require('./routes/recurringAppointmentRoutes'
 const galleryRoutes = require('./routes/galleryRoutes');
 const professionalRoutes = require('./routes/professionalRoutes');
 const commissionRoutes = require('./routes/commissionRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -164,6 +165,7 @@ app.use('/api/recurring-appointments', recurringAppointmentRoutes); // Agendamen
 app.use('/api/gallery', galleryRoutes);         // Galeria de trabalhos
 app.use('/api/professionals', professionalRoutes); // Profissionais/Manicures
 app.use('/api/commissions', commissionRoutes);  // Comissões
+app.use('/api/reviews', reviewRoutes);          // Avaliações
 
 /* ========================================
    TRATAMENTO DE ERROS

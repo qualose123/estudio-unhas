@@ -207,6 +207,7 @@ const initDatabase = () => {
       const createRecurringAppointmentsTable = require('../migrations/create_recurring_appointments_table');
       const createGalleryTable = require('../migrations/create_gallery_table');
       const createCommissionsTable = require('../migrations/create_commissions_table');
+      const createReviewsTable = require('../migrations/create_reviews_table');
 
       Promise.all([
         addUserAgentToAuditLogs(),
@@ -214,7 +215,8 @@ const initDatabase = () => {
         createWaitlistTable(),
         createRecurringAppointmentsTable(),
         createGalleryTable(),
-        createCommissionsTable()
+        createCommissionsTable(),
+        createReviewsTable()
       ])
         .then(() => {
           console.log('✅ Migrations executadas com sucesso!');
