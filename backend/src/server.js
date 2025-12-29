@@ -90,6 +90,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /**
+ * Sanitização de Inputs - Previne XSS e SQL Injection
+ * Sanitiza automaticamente body, query params e params de URL
+ */
+const { sanitizeInput } = require('./middleware/sanitize');
+app.use(sanitizeInput);
+
+/**
  * Passport - Inicializa autenticação OAuth
  * Usado para login com Google
  */
