@@ -1,49 +1,27 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 require('dotenv').config();
 
 let emailEnabled = false;
-let transporter = null;
 
-// Configurar transporter apenas se as credenciais estiverem disponíveis
-if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-  transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: parseInt(process.env.EMAIL_PORT),
-    secure: process.env.EMAIL_SECURE === 'true',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD
-    },
-    tls: {
-      rejectUnauthorized: false
-    }
-  });
-
-  // Verificar conexão ao iniciar (sem bloquear o servidor)
-  transporter.verify((error, success) => {
-    if (error) {
-      console.error('⚠️  Erro na configuração do email:', error.message);
-      console.warn('⚠️  Funcionalidade de email desabilitada - verifique as configurações SMTP');
-      emailEnabled = false;
-    } else {
-      console.log('✅ Servidor de email SMTP pronto para enviar mensagens');
-      emailEnabled = true;
-    }
-  });
+// Configurar SendGrid apenas se a API key estiver disponível
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  emailEnabled = true;
+  console.log('✅ SendGrid configurado - serviço de email habilitado');
 } else {
-  console.warn('⚠️  Credenciais de email não configuradas - funcionalidade de email desabilitada');
+  console.warn('⚠️  SENDGRID_API_KEY não configurada - funcionalidade de email desabilitada');
 }
 
 // Enviar email de recuperação de senha
 const sendPasswordResetEmail = async (email, name, code) => {
-  if (!emailEnabled || !transporter) {
+  if (!emailEnabled) {
     console.warn('⚠️  Email não configurado - não foi possível enviar email de recuperação');
     throw new Error('Serviço de email não disponível no momento');
   }
 
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+  const msg = {
     to: email,
+    from: process.env.SENDGRID_FROM_EMAIL || process.env.EMAIL_USER || 'noreply@example.com',
     subject: 'Recuperação de Senha - Estúdio de Unhas',
     html: `
       <!DOCTYPE html>
@@ -115,11 +93,14 @@ const sendPasswordResetEmail = async (email, name, code) => {
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email de recuperação enviado:', info.messageId);
-    return info;
+    await sgMail.send(msg);
+    console.log('✅ Email de recuperação enviado para:', email);
+    return { success: true };
   } catch (error) {
     console.error('❌ Erro ao enviar email:', error.message);
+    if (error.response) {
+      console.error('Detalhes do erro SendGrid:', error.response.body);
+    }
     throw error;
   }
 };
@@ -128,14 +109,14 @@ const sendPasswordResetEmail = async (email, name, code) => {
 const sendAppointmentConfirmation = async (email, name, appointmentDetails) => {
   const { service, date, time, price } = appointmentDetails;
 
-  if (!emailEnabled || !transporter) {
+  if (!emailEnabled) {
     console.warn('⚠️  Email não configurado - não foi possível enviar confirmação de agendamento');
     throw new Error('Serviço de email não disponível no momento');
   }
 
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+  const msg = {
     to: email,
+    from: process.env.SENDGRID_FROM_EMAIL || process.env.EMAIL_USER || 'noreply@example.com',
     subject: 'Confirmação de Agendamento - Estúdio de Unhas',
     html: `
       <!DOCTYPE html>
@@ -207,11 +188,14 @@ const sendAppointmentConfirmation = async (email, name, appointmentDetails) => {
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email de confirmação enviado:', info.messageId);
-    return info;
+    await sgMail.send(msg);
+    console.log('✅ Email de confirmação enviado para:', email);
+    return { success: true };
   } catch (error) {
     console.error('❌ Erro ao enviar email:', error.message);
+    if (error.response) {
+      console.error('Detalhes do erro SendGrid:', error.response.body);
+    }
     throw error;
   }
 };
