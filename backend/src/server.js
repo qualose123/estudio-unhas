@@ -34,6 +34,7 @@ const timeBlockRoutes = require('./routes/timeBlockRoutes');
 const passwordResetRoutes = require('./routes/passwordResetRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const waitlistRoutes = require('./routes/waitlistRoutes');
+const recurringAppointmentRoutes = require('./routes/recurringAppointmentRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -149,6 +150,7 @@ app.use('/api/time-blocks', timeBlockRoutes);   // Bloqueios de horário
 app.use('/api/password-reset', passwordResetRoutes); // Recuperação de senha
 app.use('/api/coupons', couponRoutes);          // Cupons de desconto
 app.use('/api/waitlist', waitlistRoutes);       // Lista de espera
+app.use('/api/recurring-appointments', recurringAppointmentRoutes); // Agendamentos recorrentes
 
 /* ========================================
    TRATAMENTO DE ERROS
@@ -193,11 +195,18 @@ const startServer = async () => {
 
     // Iniciar cron jobs
     const { expireOldNotifications } = require('./controllers/waitlistController');
+    const { generateRecurringAppointments } = require('./controllers/recurringAppointmentController');
 
     // Executar a cada hora para expirar notificações antigas (24h)
     cron.schedule('0 * * * *', () => {
       console.log('🕐 Executando job de expiração de notificações da lista de espera...');
       expireOldNotifications();
+    });
+
+    // Executar todos os dias às 2h da manhã para gerar agendamentos recorrentes
+    cron.schedule('0 2 * * *', () => {
+      console.log('🔄 Executando job de geração de agendamentos recorrentes...');
+      generateRecurringAppointments();
     });
 
     console.log('✓ Cron jobs configurados');
