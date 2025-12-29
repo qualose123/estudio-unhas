@@ -35,6 +35,7 @@ const passwordResetRoutes = require('./routes/passwordResetRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const waitlistRoutes = require('./routes/waitlistRoutes');
 const recurringAppointmentRoutes = require('./routes/recurringAppointmentRoutes');
+const galleryRoutes = require('./routes/galleryRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -94,6 +95,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /**
+ * Servir arquivos estáticos (uploads)
+ * Permite acesso público às imagens da galeria
+ */
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+/**
  * Sanitização de Inputs - Previne XSS e SQL Injection
  * Sanitiza automaticamente body, query params e params de URL
  */
@@ -151,6 +159,7 @@ app.use('/api/password-reset', passwordResetRoutes); // Recuperação de senha
 app.use('/api/coupons', couponRoutes);          // Cupons de desconto
 app.use('/api/waitlist', waitlistRoutes);       // Lista de espera
 app.use('/api/recurring-appointments', recurringAppointmentRoutes); // Agendamentos recorrentes
+app.use('/api/gallery', galleryRoutes);         // Galeria de trabalhos
 
 /* ========================================
    TRATAMENTO DE ERROS

@@ -48,9 +48,31 @@ const verifyClientOrAdmin = (req, res, next) => {
   return res.status(403).json({ error: 'Acesso negado.' });
 };
 
+// Middleware de autenticação opcional (não bloqueia se não houver token)
+const optionalAuth = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    // Sem token, continua sem autenticação
+    req.user = null;
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    // Token inválido, continua sem autenticação
+    req.user = null;
+    next();
+  }
+};
+
 module.exports = {
   verifyToken,
   verifyAdmin,
   verifyClient,
-  verifyClientOrAdmin
+  verifyClientOrAdmin,
+  optionalAuth
 };
