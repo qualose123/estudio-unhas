@@ -211,6 +211,7 @@ const startServer = async () => {
     // Iniciar cron jobs
     const { expireOldNotifications } = require('./controllers/waitlistController');
     const { generateRecurringAppointments } = require('./controllers/recurringAppointmentController');
+    const { sendAppointmentReminders } = require('./controllers/notificationController');
 
     // Executar a cada hora para expirar notificações antigas (24h)
     cron.schedule('0 * * * *', () => {
@@ -222,6 +223,12 @@ const startServer = async () => {
     cron.schedule('0 2 * * *', () => {
       console.log('🔄 Executando job de geração de agendamentos recorrentes...');
       generateRecurringAppointments();
+    });
+
+    // Executar todos os dias às 9h da manhã para enviar lembretes 24h antes
+    cron.schedule('0 9 * * *', () => {
+      console.log('📧 Executando job de lembretes de agendamentos...');
+      sendAppointmentReminders();
     });
 
     console.log('✓ Cron jobs configurados');
