@@ -199,7 +199,23 @@ const initDatabase = () => {
       });
 
       console.log('Banco de dados inicializado com sucesso!');
-      resolve();
+
+      // Executar migrations
+      const addUserAgentToAuditLogs = require('../migrations/add_user_agent_to_audit_logs');
+      const createCouponsTable = require('../migrations/create_coupons_table');
+
+      Promise.all([
+        addUserAgentToAuditLogs(),
+        createCouponsTable()
+      ])
+        .then(() => {
+          console.log('✅ Migrations executadas com sucesso!');
+          resolve();
+        })
+        .catch((err) => {
+          console.error('❌ Erro ao executar migrations:', err);
+          resolve(); // Não rejeitar para não bloquear inicialização
+        });
     });
   });
 };

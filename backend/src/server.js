@@ -31,6 +31,7 @@ const serviceRoutes = require('./routes/serviceRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const timeBlockRoutes = require('./routes/timeBlockRoutes');
 const passwordResetRoutes = require('./routes/passwordResetRoutes');
+const couponRoutes = require('./routes/couponRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -144,6 +145,7 @@ app.use('/api/services', serviceRoutes);        // Serviços oferecidos (CRUD)
 app.use('/api/appointments', appointmentRoutes); // Agendamentos (CRUD)
 app.use('/api/time-blocks', timeBlockRoutes);   // Bloqueios de horário
 app.use('/api/password-reset', passwordResetRoutes); // Recuperação de senha
+app.use('/api/coupons', couponRoutes);          // Cupons de desconto
 
 /* ========================================
    TRATAMENTO DE ERROS
