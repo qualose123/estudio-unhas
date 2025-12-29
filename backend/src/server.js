@@ -41,6 +41,7 @@ const commissionRoutes = require('./routes/commissionRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const whatsappRoutes = require('./routes/whatsappRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -170,6 +171,7 @@ app.use('/api/commissions', commissionRoutes);  // Comissões
 app.use('/api/reviews', reviewRoutes);          // Avaliações
 app.use('/api/dashboard', dashboardRoutes);     // Dashboard e estatísticas
 app.use('/api/chat', chatRoutes);               // Chat ao vivo
+app.use('/api/whatsapp', whatsappRoutes);       // Integração WhatsApp
 
 /* ========================================
    TRATAMENTO DE ERROS

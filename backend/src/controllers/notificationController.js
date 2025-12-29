@@ -1,5 +1,6 @@
 const db = require('../config/database');
 const { sendEmail } = require('../services/emailService');
+const whatsappService = require('../services/whatsappService');
 
 /**
  * Enviar lembretes de agendamentos nas próximas 24 horas
@@ -18,6 +19,7 @@ const sendAppointmentReminders = () => {
       a.*,
       c.name as client_name,
       c.email as client_email,
+      c.phone as client_phone,
       s.name as service_name,
       s.duration as service_duration,
       p.name as professional_name
@@ -67,6 +69,19 @@ const sendAppointmentReminders = () => {
               </div>
             `
           });
+
+          // Enviar também via WhatsApp se configurado e cliente tiver telefone
+          if (whatsappService.isWhatsAppConfigured() && appointment.client_phone) {
+            await whatsappService.sendAppointmentReminder(
+              appointment.client_phone,
+              {
+                clientName: appointment.client_name,
+                serviceName: appointment.service_name,
+                date: appointment.appointment_date,
+                time: appointment.appointment_time
+              }
+            );
+          }
 
           // Marcar como enviado
           db.run(
