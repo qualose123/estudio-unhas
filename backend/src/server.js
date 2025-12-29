@@ -36,6 +36,8 @@ const couponRoutes = require('./routes/couponRoutes');
 const waitlistRoutes = require('./routes/waitlistRoutes');
 const recurringAppointmentRoutes = require('./routes/recurringAppointmentRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
+const professionalRoutes = require('./routes/professionalRoutes');
+const commissionRoutes = require('./routes/commissionRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -160,6 +162,8 @@ app.use('/api/coupons', couponRoutes);          // Cupons de desconto
 app.use('/api/waitlist', waitlistRoutes);       // Lista de espera
 app.use('/api/recurring-appointments', recurringAppointmentRoutes); // Agendamentos recorrentes
 app.use('/api/gallery', galleryRoutes);         // Galeria de trabalhos
+app.use('/api/professionals', professionalRoutes); // Profissionais/Manicures
+app.use('/api/commissions', commissionRoutes);  // Comissões
 
 /* ========================================
    TRATAMENTO DE ERROS
