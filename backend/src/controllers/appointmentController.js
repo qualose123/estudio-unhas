@@ -1,5 +1,6 @@
 const db = require('../config/database');
 const { notifyWaitlist } = require('./waitlistController');
+const cache = require('../utils/cache');
 
 // Listar todos os agendamentos (admin pode ver todos, cliente vê apenas os seus)
 const getAllAppointments = (req, res) => {
@@ -146,6 +147,9 @@ const createAppointment = (req, res) => {
                   return res.status(500).json({ error: 'Erro ao criar agendamento' });
                 }
 
+                // Invalidar cache de horários disponíveis
+                cache.del(`available_times:${appointment_date}:${service_id}`);
+
                 // Buscar agendamento criado com informações completas
                 db.get(
                   `SELECT
@@ -254,6 +258,9 @@ const updateAppointment = (req, res) => {
           return res.status(500).json({ error: 'Erro ao atualizar agendamento' });
         }
 
+        // Invalidar cache de horários disponíveis
+        cache.del(`available_times:${appointment.appointment_date}:${appointment.service_id}`);
+
         // Se o agendamento foi cancelado, notificar lista de espera
         if (status === 'cancelled') {
           try {
@@ -320,6 +327,13 @@ const getAvailableTimes = (req, res) => {
     return res.status(400).json({ error: 'Data e serviço são obrigatórios' });
   }
 
+  // Verificar cache primeiro
+  const cacheKey = `available_times:${date}:${service_id}`;
+  const cachedData = cache.get(cacheKey);
+  if (cachedData) {
+    return res.json({ ...cachedData, cached: true });
+  }
+
   // Buscar duração do serviço
   db.get('SELECT duration FROM services WHERE id = ?', [service_id], (err, service) => {
     if (err || !service) {
@@ -384,7 +398,12 @@ const getAvailableTimes = (req, res) => {
           currentTime = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
         }
 
-        res.json({ date, availableTimes });
+        const result = { date, availableTimes };
+
+        // Salvar no cache (TTL de 5 minutos)
+        cache.set(cacheKey, result, 300);
+
+        res.json(result);
       })
       .catch(err => {
         res.status(500).json({ error: 'Erro ao buscar horários disponíveis' });
