@@ -26,7 +26,20 @@
       "Bash(git branch:*)",
       "Bash(npm audit:*)",
       "Bash(npm update:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(tar:*)",
+      "Bash(powershell -Command \"Compress-Archive -Path * -DestinationPath ''..\\\\..\\\\frontend-hostgator.zip'' -Force\")",
+      "Bash(dir:*)",
+      "Bash(npm ls:*)",
+      "Bash(powershell -Command \"Compress-Archive -Path ''build\\\\*'' -DestinationPath ''..\\\\frontend-hostgator-fixed.zip'' -Force\")",
+      "Bash(copy:*)",
+      "Bash(powershell -Command \"Compress-Archive -Path ''*'' -DestinationPath ''..\\\\..\\\\frontend-hostgator-final.zip'' -Force\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: Corrige CORS para aceitar URL do Hostgator\n\n- Adiciona trust proxy para produção \\(Railway\\)\n- Corrige ValidationError do express-rate-limit\n- Permite que rate limiting funcione com proxy reverso\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(powershell -Command \"Compress-Archive -Path ''*'' -DestinationPath ''..\\\\..\\\\frontend-hostgator-final-v2.zip'' -Force\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Migra serviço de email de Nodemailer para Resend\n\n- Substitui Nodemailer por Resend para envio de emails\n- Resolve problema de SMTP bloqueado no Railway\n- Mantém mesmos templates de email \\(recuperação de senha e confirmação de agendamento\\)\n- Adiciona suporte para EMAIL_FROM personalizado ou padrão onboarding@resend.dev\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Adiciona validação de antecedência mínima para cancelamento\n\n- Clientes não podem cancelar agendamentos com menos de 24h de antecedência\n- Administradores podem cancelar a qualquer momento\n- Retorna erro claro quando a antecedência for insuficiente\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Migra serviço de email para SMTP da Hostgator\n\n- Substitui Resend por Nodemailer com SMTP da Hostgator\n- Permite envio de emails para qualquer endereço\n- Configurado com servidor mail.raphaeljonhydelimati...meusitehostgator.com.br\n- Adiciona suporte a TLS para melhor compatibilidade\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

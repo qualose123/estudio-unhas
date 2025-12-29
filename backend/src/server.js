@@ -17,6 +17,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const passport = require('passport');
+const cron = require('node-cron');
 
 // Carregar variáveis de ambiente do arquivo .env
 require('dotenv').config();
@@ -32,6 +33,7 @@ const appointmentRoutes = require('./routes/appointmentRoutes');
 const timeBlockRoutes = require('./routes/timeBlockRoutes');
 const passwordResetRoutes = require('./routes/passwordResetRoutes');
 const couponRoutes = require('./routes/couponRoutes');
+const waitlistRoutes = require('./routes/waitlistRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -146,6 +148,7 @@ app.use('/api/appointments', appointmentRoutes); // Agendamentos (CRUD)
 app.use('/api/time-blocks', timeBlockRoutes);   // Bloqueios de horário
 app.use('/api/password-reset', passwordResetRoutes); // Recuperação de senha
 app.use('/api/coupons', couponRoutes);          // Cupons de desconto
+app.use('/api/waitlist', waitlistRoutes);       // Lista de espera
 
 /* ========================================
    TRATAMENTO DE ERROS
@@ -187,6 +190,17 @@ const startServer = async () => {
   try {
     // Inicializar banco de dados
     await initDatabase();
+
+    // Iniciar cron jobs
+    const { expireOldNotifications } = require('./controllers/waitlistController');
+
+    // Executar a cada hora para expirar notificações antigas (24h)
+    cron.schedule('0 * * * *', () => {
+      console.log('🕐 Executando job de expiração de notificações da lista de espera...');
+      expireOldNotifications();
+    });
+
+    console.log('✓ Cron jobs configurados');
 
     // Iniciar servidor
     app.listen(PORT, () => {

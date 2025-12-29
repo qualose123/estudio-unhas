@@ -203,10 +203,12 @@ const initDatabase = () => {
       // Executar migrations
       const addUserAgentToAuditLogs = require('../migrations/add_user_agent_to_audit_logs');
       const createCouponsTable = require('../migrations/create_coupons_table');
+      const createWaitlistTable = require('../migrations/create_waitlist_table');
 
       Promise.all([
         addUserAgentToAuditLogs(),
-        createCouponsTable()
+        createCouponsTable(),
+        createWaitlistTable()
       ])
         .then(() => {
           console.log('✅ Migrations executadas com sucesso!');

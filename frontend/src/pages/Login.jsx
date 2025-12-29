@@ -259,7 +259,7 @@ const Login = () => {
               </div>
 
               <a
-                href="http://localhost:5000/api/auth/google"
+                href={`${import.meta.env.VITE_API_URL.replace('/api', '')}/api/auth/google`}
                 className="btn btn-secondary w-full flex items-center justify-center gap-3"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24">

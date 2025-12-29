@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const { notifyWaitlist } = require('./waitlistController');
 
 // Listar todos os agendamentos (admin pode ver todos, cliente vê apenas os seus)
 const getAllAppointments = (req, res) => {
@@ -248,9 +249,23 @@ const updateAppointment = (req, res) => {
     db.run(
       `UPDATE appointments SET ${updates.join(', ')} WHERE id = ?`,
       params,
-      function (err) {
+      async function (err) {
         if (err) {
           return res.status(500).json({ error: 'Erro ao atualizar agendamento' });
+        }
+
+        // Se o agendamento foi cancelado, notificar lista de espera
+        if (status === 'cancelled') {
+          try {
+            await notifyWaitlist(
+              appointment.service_id,
+              appointment.appointment_date,
+              appointment.appointment_time
+            );
+          } catch (waitlistError) {
+            console.error('Erro ao notificar lista de espera:', waitlistError);
+            // Não bloquear a resposta por erro na lista de espera
+          }
         }
 
         // Buscar agendamento atualizado
