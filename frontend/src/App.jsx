@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Navbar from './components/Navbar';
 import ThemeToggle from './components/ThemeToggle';
+import ChatWidget from './components/ChatWidget';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
@@ -85,6 +86,9 @@ function App() {
 
             {/* Theme Toggle Button */}
             <ThemeToggle />
+
+            {/* Chat Widget */}
+            <ChatWidget />
           </div>
         </AuthProvider>
       </ThemeProvider>

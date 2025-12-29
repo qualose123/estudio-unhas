@@ -40,6 +40,7 @@ const professionalRoutes = require('./routes/professionalRoutes');
 const commissionRoutes = require('./routes/commissionRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -168,6 +169,7 @@ app.use('/api/professionals', professionalRoutes); // Profissionais/Manicures
 app.use('/api/commissions', commissionRoutes);  // Comissões
 app.use('/api/reviews', reviewRoutes);          // Avaliações
 app.use('/api/dashboard', dashboardRoutes);     // Dashboard e estatísticas
+app.use('/api/chat', chatRoutes);               // Chat ao vivo
 
 /* ========================================
    TRATAMENTO DE ERROS
@@ -235,8 +237,8 @@ const startServer = async () => {
 
     console.log('✓ Cron jobs configurados');
 
-    // Iniciar servidor
-    app.listen(PORT, () => {
+    // Iniciar servidor HTTP
+    const server = app.listen(PORT, () => {
       console.log(`\n${'='.repeat(50)}`);
       console.log(`✓ Servidor rodando na porta ${PORT}`);
       console.log(`✓ Ambiente: ${process.env.NODE_ENV || 'development'}`);
@@ -244,6 +246,12 @@ const startServer = async () => {
       console.log(`✓ Health Check: http://localhost:${PORT}/health`);
       console.log(`${'='.repeat(50)}\n`);
     });
+
+    // Inicializar WebSocket para chat ao vivo
+    const { initWebSocket } = require('./services/websocketService');
+    initWebSocket(server);
+    console.log('✓ WebSocket inicializado\n');
+
   } catch (error) {
     console.error('✗ Erro ao iniciar servidor:', error);
     process.exit(1); // Encerra o processo com código de erro

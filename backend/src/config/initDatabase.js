@@ -209,6 +209,7 @@ const initDatabase = () => {
       const createCommissionsTable = require('../migrations/create_commissions_table');
       const createReviewsTable = require('../migrations/create_reviews_table');
       const addReminderSentColumn = require('../migrations/add_reminder_sent_column');
+      const createChatTable = require('../migrations/create_chat_table');
 
       Promise.all([
         addUserAgentToAuditLogs(),
@@ -218,7 +219,8 @@ const initDatabase = () => {
         createGalleryTable(),
         createCommissionsTable(),
         createReviewsTable(),
-        addReminderSentColumn()
+        addReminderSentColumn(),
+        createChatTable()
       ])
         .then(() => {
           console.log('✅ Migrations executadas com sucesso!');
