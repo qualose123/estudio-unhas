@@ -97,7 +97,7 @@ const Home = () => {
                   <feature.icon className="text-white" size={32} />
                 </div>
                 <h3 className="text-xl font-display font-semibold mb-2">{feature.title}</h3>
-                <p className="text-neutral-600">{feature.description}</p>
+                <p className="text-neutral-600 dark:text-white">{feature.description}</p>
               </Card>
             ))}
           </div>
@@ -105,12 +105,12 @@ const Home = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 px-4 bg-white">
+      <section className="py-16 px-4 bg-white dark:bg-neutral-900">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-4 text-gradient">
             Nossos Serviços
           </h2>
-          <p className="text-center text-neutral-600 mb-12 max-w-2xl mx-auto">
+          <p className="text-center text-neutral-600 dark:text-white mb-12 max-w-2xl mx-auto">
             Oferecemos uma variedade de serviços para deixar suas unhas impecáveis
           </p>
 
@@ -121,8 +121,8 @@ const Home = () => {
                   <Heart className="text-primary-600" size={24} />
                 </div>
                 <h3 className="font-display font-semibold text-lg mb-2">{service.name}</h3>
-                <p className="text-primary-600 font-semibold mb-1">{service.price}</p>
-                <p className="text-sm text-neutral-500">{service.duration}</p>
+                <p className="text-primary-600 dark:text-white font-semibold mb-1">{service.price}</p>
+                <p className="text-sm text-neutral-500 dark:text-white">{service.duration}</p>
               </Card>
             ))}
           </div>
@@ -131,13 +131,13 @@ const Home = () => {
 
       {/* CTA Section - Apenas para usuários não logados */}
       {!user && (
-        <section className="py-16 px-4 bg-gradient-soft">
+        <section className="py-16 px-4 bg-gradient-soft dark:bg-neutral-800">
           <div className="max-w-4xl mx-auto text-center">
             <Shield className="mx-auto text-primary-600 mb-6" size={48} />
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
               Pronta para começar?
             </h2>
-            <p className="text-lg text-neutral-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-lg text-neutral-600 dark:text-white mb-8 max-w-2xl mx-auto">
               Crie sua conta gratuitamente e agende seu primeiro horário em minutos
             </p>
             <Link to="/register">
