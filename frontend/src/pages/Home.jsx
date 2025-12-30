@@ -133,8 +133,8 @@ const Home = () => {
       {!user && (
         <section className="py-16 px-4 bg-gradient-soft dark:bg-neutral-800">
           <div className="max-w-4xl mx-auto text-center">
-            <Shield className="mx-auto text-primary-600 mb-6" size={48} />
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
+            <Shield className="mx-auto text-primary-600 dark:text-primary-400 mb-6" size={48} />
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6 dark:text-white">
               Pronta para começar?
             </h2>
             <p className="text-lg text-neutral-600 dark:text-white mb-8 max-w-2xl mx-auto">
