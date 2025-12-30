@@ -230,7 +230,7 @@ const Profile = () => {
         </div>
 
         {/* Estatísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-8">
           <div className="card text-center">
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Agendamentos Realizados</p>
             <p className="text-3xl font-bold text-pink-600 dark:text-pink-400 mt-2">-</p>
@@ -241,7 +241,7 @@ const Profile = () => {
             <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">-</p>
           </div>
 
-          <div className="card text-center">
+          <div className="card text-center sm:col-span-2 md:col-span-1">
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Membro Desde</p>
             <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
               {new Date(user?.created_at || Date.now()).getFullYear()}

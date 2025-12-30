@@ -131,7 +131,7 @@ const RecurringAppointments = () => {
     <div className="min-h-screen bg-gradient-soft py-8 px-4">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-display font-bold text-neutral-800 dark:text-white">
               Agendamentos Recorrentes
@@ -147,7 +147,7 @@ const RecurringAppointments = () => {
               setFormData({ service_id: '', recurrence_type: 'weekly', start_date: '', preferred_time: '', preferred_day_of_week: '1' });
               setShowModal(true);
             }}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center justify-center gap-2 md:w-auto"
           >
             <FiPlus size={20} />
             Novo Recorrente
@@ -156,8 +156,8 @@ const RecurringAppointments = () => {
 
         {/* Info Card */}
         <div className="card mb-8 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border-2 border-pink-200 dark:border-pink-800">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-pink-500 rounded-xl text-white">
+          <div className="flex flex-col sm:flex-row items-start gap-4">
+            <div className="p-3 bg-pink-500 rounded-xl text-white flex-shrink-0">
               <FiRepeat size={24} />
             </div>
             <div>
@@ -185,9 +185,9 @@ const RecurringAppointments = () => {
           <div className="space-y-4 animate-fade-in">
             {recurring.map((item) => (
               <div key={item.id} className="card">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
                       <h3 className="font-semibold text-lg text-neutral-800 dark:text-white">
                         {item.service_name}
                       </h3>
@@ -223,7 +223,7 @@ const RecurringAppointments = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-row sm:flex-col lg:flex-row items-center justify-end gap-2">
                     <button
                       onClick={() => handleToggleActive(item.id, item.active)}
                       className={`p-2 rounded-lg transition-colors ${

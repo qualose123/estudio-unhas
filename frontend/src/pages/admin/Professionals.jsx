@@ -161,79 +161,135 @@ const Professionals = () => {
           </div>
         )}
 
-        {/* Tabela de Profissionais */}
+        {/* Tabela de Profissionais - Desktop/Tablet */}
         {!loading && professionals.length > 0 && (
-          <div className="card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-neutral-50 dark:bg-neutral-700/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Nome
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Contato
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Taxa de Comissão
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-                  {professionals.map((professional) => (
-                    <tr key={professional.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/30">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-neutral-800 dark:text-white">
-                          {professional.name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-neutral-600 dark:text-neutral-300">
-                          {professional.email && <div>{professional.email}</div>}
-                          {professional.phone && <div>{professional.phone}</div>}
-                          {!professional.email && !professional.phone && '-'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <span className="text-sm font-semibold text-pink-600 dark:text-pink-400">
-                          {professional.commission_rate}%
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <span className={`badge ${professional.active ? 'badge-success' : 'badge-danger'}`}>
-                          {professional.active ? 'Ativo' : 'Inativo'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleEdit(professional)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                            title="Editar"
-                          >
-                            <FiEdit2 size={18} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(professional.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Excluir"
-                          >
-                            <FiTrash2 size={18} />
-                          </button>
-                        </div>
-                      </td>
+          <>
+            {/* Desktop/Tablet: Tabela com scroll */}
+            <div className="hidden sm:block card overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[600px]">
+                  <thead className="bg-neutral-50 dark:bg-neutral-700/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Nome
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Contato
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Taxa de Comissão
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Ações
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+                    {professionals.map((professional) => (
+                      <tr key={professional.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/30">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="font-medium text-neutral-800 dark:text-white">
+                            {professional.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-neutral-600 dark:text-neutral-300">
+                            {professional.email && <div>{professional.email}</div>}
+                            {professional.phone && <div>{professional.phone}</div>}
+                            {!professional.email && !professional.phone && '-'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <span className="text-sm font-semibold text-pink-600 dark:text-pink-400">
+                            {professional.commission_rate}%
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <span className={`badge ${professional.active ? 'badge-success' : 'badge-danger'}`}>
+                            {professional.active ? 'Ativo' : 'Inativo'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleEdit(professional)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                              title="Editar"
+                            >
+                              <FiEdit2 size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(professional.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                              title="Excluir"
+                            >
+                              <FiTrash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+
+            {/* Mobile: Cards */}
+            <div className="sm:hidden space-y-4">
+              {professionals.map((professional) => (
+                <div key={professional.id} className="card">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-semibold text-lg text-neutral-800 dark:text-white">
+                        {professional.name}
+                      </h3>
+                      <span className={`badge ${professional.active ? 'badge-success' : 'badge-danger'} mt-1`}>
+                        {professional.active ? 'Ativo' : 'Inativo'}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(professional)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        title="Editar"
+                      >
+                        <FiEdit2 size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(professional.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        title="Excluir"
+                      >
+                        <FiTrash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-sm">
+                    {professional.email && (
+                      <p className="text-neutral-600 dark:text-neutral-400">
+                        <span className="font-medium">Email:</span> {professional.email}
+                      </p>
+                    )}
+                    {professional.phone && (
+                      <p className="text-neutral-600 dark:text-neutral-400">
+                        <span className="font-medium">Telefone:</span> {professional.phone}
+                      </p>
+                    )}
+                    <p className="text-neutral-600 dark:text-neutral-400">
+                      <span className="font-medium">Comissão:</span>{' '}
+                      <span className="font-semibold text-pink-600 dark:text-pink-400">
+                        {professional.commission_rate}%
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* Empty State */}

@@ -89,7 +89,7 @@ const Waitlist = () => {
     <div className="min-h-screen bg-gradient-soft py-8 px-4">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-display font-bold text-neutral-800 dark:text-white">
               Lista de Espera
@@ -101,7 +101,7 @@ const Waitlist = () => {
 
           <button
             onClick={() => setShowModal(true)}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center justify-center gap-2 md:w-auto"
           >
             <FiPlus size={20} />
             Adicionar à Lista
@@ -120,9 +120,9 @@ const Waitlist = () => {
           <div className="space-y-4 animate-fade-in">
             {waitlistEntries.map((entry) => (
               <div key={entry.id} className="card">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
                       <h3 className="font-semibold text-lg text-neutral-800 dark:text-white">
                         {entry.service_name}
                       </h3>
@@ -161,7 +161,7 @@ const Waitlist = () => {
                   {entry.status === 'waiting' && (
                     <button
                       onClick={() => handleCancel(entry.id)}
-                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors sm:self-start"
                       title="Remover da lista"
                     >
                       <FiX size={20} />
