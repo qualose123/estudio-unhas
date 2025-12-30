@@ -105,12 +105,12 @@ const Home = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 px-4 bg-gradient-peach dark:bg-dark-bg">
+      <section className="py-16 px-4 bg-primary-50 dark:bg-dark-bg">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-4 text-gradient">
             Nossos Serviços
           </h2>
-          <p className="text-center text-neutral-600 dark:text-dark-text mb-12 max-w-2xl mx-auto">
+          <p className="text-center text-neutral-700 dark:text-dark-text mb-12 max-w-2xl mx-auto">
             Oferecemos uma variedade de serviços para deixar suas unhas impecáveis
           </p>
 
@@ -122,7 +122,7 @@ const Home = () => {
                 </div>
                 <h3 className="font-display font-semibold text-lg mb-2 dark:text-dark-text">{service.name}</h3>
                 <p className="text-primary-600 dark:text-primary-400 font-semibold mb-1">{service.price}</p>
-                <p className="text-sm text-neutral-500 dark:text-dark-muted">{service.duration}</p>
+                <p className="text-sm text-neutral-600 dark:text-dark-muted">{service.duration}</p>
               </Card>
             ))}
           </div>
@@ -134,10 +134,10 @@ const Home = () => {
         <section className="py-16 px-4 bg-secondary-50 dark:bg-dark-surface">
           <div className="max-w-4xl mx-auto text-center">
             <Shield className="mx-auto text-primary-600 dark:text-secondary-400 mb-6" size={48} />
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6 dark:text-dark-text">
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6 text-neutral-700 dark:text-dark-text">
               Pronta para começar?
             </h2>
-            <p className="text-lg text-neutral-600 dark:text-dark-muted mb-8 max-w-2xl mx-auto">
+            <p className="text-lg text-neutral-700 dark:text-dark-muted mb-8 max-w-2xl mx-auto">
               Crie sua conta gratuitamente e agende seu primeiro horário em minutos
             </p>
             <Link to="/register">

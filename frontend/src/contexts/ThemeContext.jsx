@@ -12,28 +12,32 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
-    // Carregar tema do localStorage ou usar preferência do sistema
+    // Sempre começar com light mode
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      return savedTheme;
-    }
-
-    // Detectar preferência do sistema
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
-    }
-
-    return 'light';
+    return savedTheme || 'light';
   });
 
   useEffect(() => {
-    // Aplicar tema ao documento
-    document.documentElement.setAttribute('data-theme', theme);
+    const root = document.documentElement;
+
+    // Remover todas as classes de tema
+    root.classList.remove('light', 'dark');
+
+    // Adicionar a classe do tema atual
+    root.classList.add(theme);
+
+    // Salvar no localStorage
     localStorage.setItem('theme', theme);
+
+    console.log('Tema aplicado:', theme, 'Classes no HTML:', root.className);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+    setTheme(prevTheme => {
+      const newTheme = prevTheme === 'light' ? 'dark' : 'light';
+      console.log('Mudando tema de', prevTheme, 'para', newTheme);
+      return newTheme;
+    });
   };
 
   const value = {

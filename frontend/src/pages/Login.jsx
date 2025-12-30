@@ -169,10 +169,11 @@ const Login = () => {
           <h1 className="text-3xl font-display font-bold text-gradient mb-2">
             Bem-vindo de Volta!
           </h1>
-          <p className="text-neutral-600">Entre na sua conta para continuar</p>
         </div>
 
         <Card className={`animate-slide-up ${userType === 'admin' ? 'ring-2 ring-amber-400 shadow-2xl shadow-amber-500/20' : ''}`}>
+          <p className="text-center text-neutral-600 dark:text-neutral-500 mb-6">Entre na sua conta para continuar</p>
+
           {/* Tipo de Usuário */}
           <div className="flex gap-2 mb-6">
             <button
