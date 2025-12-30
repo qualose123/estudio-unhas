@@ -8,11 +8,11 @@
   }
 
   body {
-    @apply font-sans text-neutral-800 bg-gradient-soft;
+    @apply font-sans text-neutral-800 bg-gradient-soft dark:bg-dark-bg dark:text-dark-text;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    @apply font-display dark:text-dark-text;
   }
 }
 
@@ -36,7 +36,7 @@
 
   /* Cards */
   .card {
-    @apply bg-white rounded-2xl shadow-soft p-6 transition-all duration-300 hover:shadow-lg;
+    @apply bg-white dark:bg-dark-card rounded-2xl shadow-soft dark:shadow-none dark:border dark:border-dark-border p-6 transition-all duration-300 hover:shadow-lg dark:hover:shadow-glow-purple;
   }
 
   /* Inputs */
@@ -137,15 +137,15 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-neutral-100;
+  @apply bg-neutral-100 dark:bg-dark-surface;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-primary-300 rounded-full;
+  @apply bg-primary-300 dark:bg-primary-700 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-primary-400;
+  @apply bg-primary-400 dark:bg-primary-600;
 }
 
 /* Loading spinner */

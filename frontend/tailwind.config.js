@@ -58,13 +58,14 @@ export default {
           800: '#3d2a3d',  // Roxo acinzentado escuro
           900: '#2a1d2a',  // Quase preto com toque roxo
         },
-        // Cores especiais para dark mode
+        // Cores especiais para dark mode (Elegante e Suave)
         dark: {
-          bg: '#1a0f1a',      // Fundo principal dark (roxo muito escuro)
-          surface: '#2d1f2d',  // Superfícies elevadas
-          border: '#4a3a4a',   // Bordas
-          text: '#f5eff5',     // Texto principal
-          muted: '#c9b3c9',    // Texto secundário
+          bg: '#1A1625',       // Fundo principal dark (roxo bem escuro)
+          card: '#1E1E1E',     // Cards e superfícies (preto fosco claro)
+          surface: '#252030',  // Superfícies elevadas (roxo fosco)
+          border: '#2D2837',   // Bordas suaves
+          text: '#F5F5F5',     // Texto principal (branco gelo - não agride os olhos)
+          muted: '#B8B5C0',    // Texto secundário (cinza lavanda)
         }
       },
       fontFamily: {
