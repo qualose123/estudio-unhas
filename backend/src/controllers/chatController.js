@@ -148,6 +148,14 @@ const deleteChatHistory = async (req, res) => {
   }
 };
 
+// Debug: Verificar se as funções existem antes de exportar
+console.log('🔍 ChatController - Verificando exports:');
+console.log('  getChatHistory:', typeof getChatHistory);
+console.log('  getActiveConversations:', typeof getActiveConversations);
+console.log('  markMessagesAsRead:', typeof markMessagesAsRead);
+console.log('  saveMessage:', typeof saveMessage);
+console.log('  deleteChatHistory:', typeof deleteChatHistory);
+
 module.exports = {
   getChatHistory,
   getActiveConversations,
@@ -155,3 +163,5 @@ module.exports = {
   saveMessage,
   deleteChatHistory
 };
+
+console.log('✅ ChatController module.exports configurado');
