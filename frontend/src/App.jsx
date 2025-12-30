@@ -17,12 +17,16 @@ import GoogleCallback from './pages/GoogleCallback';
 import Gallery from './pages/Gallery';
 import Reviews from './pages/Reviews';
 import ClientDashboard from './pages/client/ClientDashboard';
+import Waitlist from './pages/client/Waitlist';
+import RecurringAppointments from './pages/client/RecurringAppointments';
+import Profile from './pages/client/Profile';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import GalleryManagement from './pages/admin/GalleryManagement';
 import Professionals from './pages/admin/Professionals';
 import Commissions from './pages/admin/Commissions';
 import Coupons from './pages/admin/Coupons';
 import FinancialReport from './pages/admin/FinancialReport';
+import ChatAdmin from './pages/admin/ChatAdmin';
 
 function App() {
   return (
@@ -48,6 +52,30 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ClientDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/client/waitlist"
+                element={
+                  <ProtectedRoute>
+                    <Waitlist />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/client/recurring"
+                element={
+                  <ProtectedRoute>
+                    <RecurringAppointments />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/client/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
                   </ProtectedRoute>
                 }
               />
@@ -98,6 +126,14 @@ function App() {
                 element={
                   <ProtectedRoute requireAdmin>
                     <FinancialReport />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/chat"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <ChatAdmin />
                   </ProtectedRoute>
                 }
               />
