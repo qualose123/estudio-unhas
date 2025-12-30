@@ -1,9 +1,11 @@
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
-const { saveMessage } = require('../controllers/chatController');
 
 /**
  * Serviço de WebSocket para chat ao vivo
+ *
+ * NOTA: saveMessage é importado dentro da função para evitar
+ * circular dependency durante inicialização
  */
 
 let wss;
@@ -60,6 +62,9 @@ const initWebSocket = (server) => {
         console.log('📩 Mensagem recebida:', message);
 
         if (message.type === 'chat_message') {
+          // Importar saveMessage aqui para evitar circular dependency
+          const { saveMessage } = require('../controllers/chatController');
+
           // Salvar mensagem no banco
           const savedMessage = await saveMessage({
             client_id: message.clientId,
