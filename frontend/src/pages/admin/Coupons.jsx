@@ -129,7 +129,7 @@ const Coupons = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
           <div className="card">
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Total de Cupons</p>
             <p className="text-2xl font-bold text-neutral-800 dark:text-white">{coupons.length}</p>
@@ -166,89 +166,164 @@ const Coupons = () => {
 
         {/* Tabela de Cupons */}
         {!loading && coupons.length > 0 && (
-          <div className="card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-neutral-50 dark:bg-neutral-700/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Código
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Desconto
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Usos
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Validade
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-                  {coupons.map((coupon) => (
-                    <tr key={coupon.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/30">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <FiTag className="text-pink-500" />
-                          <span className="font-mono font-semibold text-neutral-800 dark:text-white">
-                            {coupon.code}
+          <>
+            {/* Desktop/Tablet: Tabela com scroll */}
+            <div className="hidden md:block card overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[700px]">
+                  <thead className="bg-neutral-50 dark:bg-neutral-700/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Código
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Desconto
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Usos
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Validade
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+                    {coupons.map((coupon) => (
+                      <tr key={coupon.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/30">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <FiTag className="text-pink-500" />
+                            <span className="font-mono font-semibold text-neutral-800 dark:text-white">
+                              {coupon.code}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <span className="font-semibold text-pink-600 dark:text-pink-400">
+                            {formatDiscount(coupon)}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <span className="font-semibold text-pink-600 dark:text-pink-400">
-                          {formatDiscount(coupon)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-neutral-600 dark:text-neutral-300">
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-neutral-600 dark:text-neutral-300">
+                          {coupon.used_count || 0}
+                          {coupon.max_uses && ` / ${coupon.max_uses}`}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-neutral-600 dark:text-neutral-300">
+                          {coupon.expires_at
+                            ? new Date(coupon.expires_at).toLocaleDateString('pt-BR')
+                            : 'Sem limite'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          {isExpired(coupon.expires_at) ? (
+                            <span className="badge badge-danger">Expirado</span>
+                          ) : coupon.active ? (
+                            <span className="badge badge-success">Ativo</span>
+                          ) : (
+                            <span className="badge badge-warning">Inativo</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleEdit(coupon)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                              title="Editar"
+                            >
+                              <FiEdit2 size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(coupon.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                              title="Excluir"
+                            >
+                              <FiTrash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Mobile: Cards */}
+            <div className="md:hidden space-y-4">
+              {coupons.map((coupon) => (
+                <div key={coupon.id} className="card">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-2">
+                      <FiTag className="text-pink-500" />
+                      <span className="font-mono font-semibold text-lg text-neutral-800 dark:text-white">
+                        {coupon.code}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(coupon)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        title="Editar"
+                      >
+                        <FiEdit2 size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(coupon.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        title="Excluir"
+                      >
+                        <FiTrash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-neutral-600 dark:text-neutral-400">Tipo:</span>
+                      <span className="font-medium text-neutral-800 dark:text-white">
+                        {coupon.discount_type === 'percentage' ? 'Porcentagem' : 'Valor Fixo'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-600 dark:text-neutral-400">Desconto:</span>
+                      <span className="font-semibold text-pink-600 dark:text-pink-400">
+                        {formatDiscount(coupon)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-600 dark:text-neutral-400">Uso/Limite:</span>
+                      <span className="font-medium text-neutral-800 dark:text-white">
                         {coupon.used_count || 0}
-                        {coupon.max_uses && ` / ${coupon.max_uses}`}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-neutral-600 dark:text-neutral-300">
+                        {coupon.max_uses ? ` / ${coupon.max_uses}` : ' / Ilimitado'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-600 dark:text-neutral-400">Validade:</span>
+                      <span className="font-medium text-neutral-800 dark:text-white">
                         {coupon.expires_at
                           ? new Date(coupon.expires_at).toLocaleDateString('pt-BR')
                           : 'Sem limite'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {isExpired(coupon.expires_at) ? (
-                          <span className="badge badge-danger">Expirado</span>
-                        ) : coupon.active ? (
-                          <span className="badge badge-success">Ativo</span>
-                        ) : (
-                          <span className="badge badge-warning">Inativo</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleEdit(coupon)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                            title="Editar"
-                          >
-                            <FiEdit2 size={18} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(coupon.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Excluir"
-                          >
-                            <FiTrash2 size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-neutral-200 dark:border-neutral-700">
+                      <span className="text-neutral-600 dark:text-neutral-400">Status:</span>
+                      {isExpired(coupon.expires_at) ? (
+                        <span className="badge badge-danger">Expirado</span>
+                      ) : coupon.active ? (
+                        <span className="badge badge-success">Ativo</span>
+                      ) : (
+                        <span className="badge badge-warning">Inativo</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          </>
         )}
 
         {/* Empty State */}

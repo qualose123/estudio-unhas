@@ -171,7 +171,7 @@ const Commissions = () => {
           <h2 className="text-lg font-semibold text-neutral-800 dark:text-white mb-4">
             Filtros
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <label className="label">Status</label>
               <select
@@ -233,90 +233,147 @@ const Commissions = () => {
 
         {/* Tabela de Comissões */}
         {!loading && commissions.length > 0 && (
-          <div className="card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-neutral-50 dark:bg-neutral-700/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Data
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Profissional
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Cliente
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Serviço
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Valor Serviço
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Taxa
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Comissão
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-                  {commissions.map((commission) => (
-                    <tr key={commission.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/30">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-800 dark:text-neutral-200">
-                        {new Date(commission.created_at).toLocaleDateString('pt-BR')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-neutral-800 dark:text-white">
-                          {commission.professional_name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-300">
-                        {commission.client_name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-300">
-                        {commission.service_name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-800 dark:text-neutral-200">
-                        {formatCurrency(commission.service_amount)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-neutral-600 dark:text-neutral-300">
-                        {commission.commission_rate}%
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-pink-600 dark:text-pink-400">
-                        {formatCurrency(commission.commission_amount)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {getStatusBadge(commission.status)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {commission.status === 'pending' && (
-                          <button
-                            onClick={() => handleMarkAsPaid(commission.id)}
-                            className="btn-primary py-1 px-3 text-sm"
-                          >
-                            Marcar como Pago
-                          </button>
-                        )}
-                        {commission.status === 'paid' && (
-                          <span className="text-xs text-green-600 dark:text-green-400">
-                            {commission.paid_at && new Date(commission.paid_at).toLocaleDateString('pt-BR')}
-                          </span>
-                        )}
-                      </td>
+          <>
+            {/* Desktop/Tablet: Tabela com scroll */}
+            <div className="hidden md:block card overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[900px]">
+                  <thead className="bg-neutral-50 dark:bg-neutral-700/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Data
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Profissional
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Cliente
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Serviço
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Valor Serviço
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Taxa
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Comissão
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                        Ações
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+                    {commissions.map((commission) => (
+                      <tr key={commission.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/30">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-800 dark:text-neutral-200">
+                          {new Date(commission.created_at).toLocaleDateString('pt-BR')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="font-medium text-neutral-800 dark:text-white">
+                            {commission.professional_name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-300">
+                          {commission.client_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-300">
+                          {commission.service_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-800 dark:text-neutral-200">
+                          {formatCurrency(commission.service_amount)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-neutral-600 dark:text-neutral-300">
+                          {commission.commission_rate}%
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-pink-600 dark:text-pink-400">
+                          {formatCurrency(commission.commission_amount)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          {getStatusBadge(commission.status)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          {commission.status === 'pending' && (
+                            <button
+                              onClick={() => handleMarkAsPaid(commission.id)}
+                              className="btn-primary py-1 px-3 text-sm"
+                            >
+                              Marcar como Pago
+                            </button>
+                          )}
+                          {commission.status === 'paid' && (
+                            <span className="text-xs text-green-600 dark:text-green-400">
+                              {commission.paid_at && new Date(commission.paid_at).toLocaleDateString('pt-BR')}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+
+            {/* Mobile: Cards compactos */}
+            <div className="md:hidden space-y-4">
+              {commissions.map((commission) => (
+                <div key={commission.id} className="card">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-neutral-800 dark:text-white">
+                        {commission.professional_name}
+                      </h3>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                        {new Date(commission.created_at).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                    {getStatusBadge(commission.status)}
+                  </div>
+
+                  <div className="space-y-2 text-sm border-t border-neutral-200 dark:border-neutral-700 pt-3 mt-3">
+                    <div className="flex justify-between">
+                      <span className="text-neutral-600 dark:text-neutral-400">Cliente:</span>
+                      <span className="font-medium text-neutral-800 dark:text-white">{commission.client_name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-600 dark:text-neutral-400">Serviço:</span>
+                      <span className="font-medium text-neutral-800 dark:text-white">{commission.service_name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-600 dark:text-neutral-400">Valor:</span>
+                      <span className="font-medium text-neutral-800 dark:text-white">{formatCurrency(commission.service_amount)}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-pink-50 dark:bg-pink-900/20 -mx-4 px-4 py-2 mt-3">
+                      <span className="font-medium text-neutral-800 dark:text-white">Comissão ({commission.commission_rate}%):</span>
+                      <span className="font-bold text-lg text-pink-600 dark:text-pink-400">
+                        {formatCurrency(commission.commission_amount)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {commission.status === 'pending' && (
+                    <button
+                      onClick={() => handleMarkAsPaid(commission.id)}
+                      className="btn-primary w-full mt-3 text-sm"
+                    >
+                      Marcar como Pago
+                    </button>
+                  )}
+                  {commission.status === 'paid' && commission.paid_at && (
+                    <p className="text-xs text-center text-green-600 dark:text-green-400 mt-3">
+                      Pago em {new Date(commission.paid_at).toLocaleDateString('pt-BR')}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* Empty State */}

@@ -154,7 +154,7 @@ const ChatAdmin = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Lista de Conversas */}
           <div className="lg:col-span-1">
-            <div className="card h-[calc(100vh-250px)] flex flex-col">
+            <div className="card min-h-[400px] max-h-[calc(100vh-250px)] flex flex-col">
               <div className="flex items-center gap-2 pb-4 border-b border-neutral-200 dark:border-neutral-700">
                 <FiUsers size={20} className="text-neutral-600 dark:text-neutral-400" />
                 <h2 className="font-semibold text-neutral-800 dark:text-white">
@@ -213,7 +213,7 @@ const ChatAdmin = () => {
 
           {/* Área de Chat */}
           <div className="lg:col-span-2">
-            <div className="card h-[calc(100vh-250px)] flex flex-col">
+            <div className="card min-h-[400px] max-h-[calc(100vh-250px)] flex flex-col">
               {selectedConversation ? (
                 <>
                   {/* Header da Conversa */}
@@ -234,7 +234,7 @@ const ChatAdmin = () => {
                         className={`flex ${msg.senderType === 'admin' ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
-                          className={`max-w-[70%] px-4 py-2 rounded-lg ${
+                          className={`max-w-[85%] sm:max-w-[70%] px-4 py-2 rounded-lg ${
                             msg.senderType === 'admin'
                               ? 'bg-gradient-primary text-white'
                               : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-white'
@@ -270,7 +270,7 @@ const ChatAdmin = () => {
                       <button
                         onClick={sendMessage}
                         disabled={!inputMessage.trim() || !isConnected}
-                        className="btn-primary h-full px-6"
+                        className="btn-primary h-full px-4 sm:px-6"
                       >
                         <FiSend size={20} />
                       </button>

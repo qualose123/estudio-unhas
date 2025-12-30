@@ -104,7 +104,7 @@ const FinancialReport = () => {
           <button
             onClick={exportReport}
             disabled={!report}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center gap-2 w-full md:w-auto"
           >
             <FiDownload size={20} />
             Exportar CSV
@@ -116,7 +116,7 @@ const FinancialReport = () => {
           <h2 className="text-lg font-semibold text-neutral-800 dark:text-white mb-4">
             Filtros
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div>
               <label className="label">Data Inicial</label>
               <input
@@ -206,14 +206,14 @@ const FinancialReport = () => {
               </div>
             </div>
 
-            {/* Tabela de Dados */}
-            <div className="card overflow-hidden">
+            {/* Tabela de Dados - Desktop/Tablet */}
+            <div className="hidden sm:block card overflow-hidden">
               <h2 className="text-lg font-semibold text-neutral-800 dark:text-white mb-4">
                 Detalhamento por Período
               </h2>
 
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[600px]">
                   <thead className="bg-neutral-50 dark:bg-neutral-700/50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
@@ -265,6 +265,78 @@ const FinancialReport = () => {
                     </tr>
                   </tfoot>
                 </table>
+              </div>
+            </div>
+
+            {/* Mobile: Cards */}
+            <div className="sm:hidden space-y-4">
+              <h2 className="text-lg font-semibold text-neutral-800 dark:text-white mb-4">
+                Detalhamento por Período
+              </h2>
+
+              {report.data.map((row, index) => (
+                <div key={index} className="card">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-3 border-b border-neutral-200 dark:border-neutral-700">
+                      <span className="font-semibold text-neutral-800 dark:text-white">
+                        {formatPeriod(row.period, filters.group_by)}
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-neutral-600 dark:text-neutral-400">Agendamentos:</span>
+                        <span className="font-medium text-neutral-800 dark:text-white">
+                          {row.total_appointments}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-neutral-600 dark:text-neutral-400">Receita:</span>
+                        <span className="font-semibold text-green-600 dark:text-green-400">
+                          {formatCurrency(row.revenue)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-neutral-600 dark:text-neutral-400">Ticket Médio:</span>
+                        <span className="font-medium text-neutral-800 dark:text-white">
+                          {formatCurrency(row.average_ticket)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Total Card Mobile */}
+              <div className="card bg-neutral-100 dark:bg-neutral-700/50">
+                <div className="space-y-3">
+                  <div className="pb-3 border-b border-neutral-200 dark:border-neutral-700">
+                    <span className="font-bold text-lg text-neutral-800 dark:text-white">
+                      TOTAL
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="font-medium text-neutral-600 dark:text-neutral-400">Agendamentos:</span>
+                      <span className="font-bold text-neutral-800 dark:text-white">
+                        {report.totals.total_appointments}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-neutral-600 dark:text-neutral-400">Receita:</span>
+                      <span className="font-bold text-lg text-green-600 dark:text-green-400">
+                        {formatCurrency(report.totals.total_revenue)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-neutral-600 dark:text-neutral-400">Ticket Médio:</span>
+                      <span className="font-bold text-neutral-800 dark:text-white">
+                        {formatCurrency(report.totals.average_ticket)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </>
