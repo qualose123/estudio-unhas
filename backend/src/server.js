@@ -40,8 +40,8 @@ const professionalRoutes = require('./routes/professionalRoutes');
 const commissionRoutes = require('./routes/commissionRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
-const chatRoutes = require('./routes/chatRoutes');
-const whatsappRoutes = require('./routes/whatsappRoutes');
+const chatRoutes = require('./routes/liveChatRoutes'); // Renomeado para forçar Railway limpar cache
+const whatsappRoutes = require('./routes/whatsappBusinessRoutes'); // Renomeado para forçar Railway limpar cache
 
 const app = express();
 const PORT = process.env.PORT || 5000;
