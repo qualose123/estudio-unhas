@@ -469,7 +469,7 @@ const expireOldNotifications = async () => {
   const now = new Date().toISOString();
 
   try {
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? `UPDATE waitlist
          SET status = 'expired', updated_at = CURRENT_TIMESTAMP
          WHERE status = 'notified'
