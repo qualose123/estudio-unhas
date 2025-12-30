@@ -1,5 +1,6 @@
 const whatsappService = require('../services/whatsappService');
 const db = require('../config/database');
+const { usePG } = require('../config/database');
 
 /**
  * Verificar status da integração com WhatsApp
@@ -52,9 +53,8 @@ const sendTestMessage = async (req, res) => {
 const sendAppointmentConfirmationWhatsApp = async (appointmentId) => {
   try {
     // Buscar dados do agendamento
-    const appointment = await new Promise((resolve, reject) => {
-      db.get(
-        `SELECT
+    const query = usePG
+      ? `SELECT
           a.*,
           c.name as client_name,
           c.phone as client_phone,
@@ -63,14 +63,19 @@ const sendAppointmentConfirmationWhatsApp = async (appointmentId) => {
          FROM appointments a
          JOIN clients c ON a.client_id = c.id
          JOIN services s ON a.service_id = s.id
-         WHERE a.id = ?`,
-        [appointmentId],
-        (err, row) => {
-          if (err) return reject(err);
-          resolve(row);
-        }
-      );
-    });
+         WHERE a.id = $1`
+      : `SELECT
+          a.*,
+          c.name as client_name,
+          c.phone as client_phone,
+          s.name as service_name,
+          s.price as service_price
+         FROM appointments a
+         JOIN clients c ON a.client_id = c.id
+         JOIN services s ON a.service_id = s.id
+         WHERE a.id = ?`;
+
+    const appointment = await db.get(query, [appointmentId]);
 
     if (!appointment) {
       console.error('Agendamento não encontrado');
@@ -106,66 +111,76 @@ const sendAppointmentConfirmationWhatsApp = async (appointmentId) => {
  * Enviar lembrete via WhatsApp (para cron job)
  */
 const sendAppointmentRemindersWhatsApp = async () => {
-  console.log('📱 Enviando lembretes via WhatsApp...');
+  try {
+    console.log('📱 Enviando lembretes via WhatsApp...');
 
-  if (!whatsappService.isWhatsAppConfigured()) {
-    console.log('⚠️  WhatsApp não configurado, pulando envio de lembretes');
-    return;
-  }
-
-  // Buscar agendamentos nas próximas 24 horas
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-  db.all(
-    `SELECT
-      a.*,
-      c.name as client_name,
-      c.phone as client_phone,
-      s.name as service_name
-     FROM appointments a
-     JOIN clients c ON a.client_id = c.id
-     JOIN services s ON a.service_id = s.id
-     WHERE a.appointment_date = ?
-     AND a.status = 'confirmed'
-     AND a.reminder_sent = 0
-     AND c.phone IS NOT NULL`,
-    [tomorrowStr],
-    async (err, appointments) => {
-      if (err) {
-        console.error('Erro ao buscar agendamentos:', err);
-        return;
-      }
-
-      console.log(`📋 Encontrados ${appointments.length} agendamentos para lembrete WhatsApp`);
-
-      for (const appointment of appointments) {
-        try {
-          const result = await whatsappService.sendAppointmentReminder(
-            appointment.client_phone,
-            {
-              clientName: appointment.client_name,
-              serviceName: appointment.service_name,
-              date: appointment.appointment_date,
-              time: appointment.appointment_time
-            }
-          );
-
-          if (result.success) {
-            console.log(`✅ Lembrete WhatsApp enviado para ${appointment.client_phone}`);
-          } else {
-            console.error(`❌ Falha ao enviar lembrete WhatsApp: ${result.error}`);
-          }
-
-        } catch (error) {
-          console.error(`❌ Erro ao enviar lembrete para ${appointment.client_phone}:`, error);
-        }
-      }
-
-      console.log('✅ Processo de lembretes WhatsApp concluído');
+    if (!whatsappService.isWhatsAppConfigured()) {
+      console.log('⚠️  WhatsApp não configurado, pulando envio de lembretes');
+      return;
     }
-  );
+
+    // Buscar agendamentos nas próximas 24 horas
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+    const query = usePG
+      ? `SELECT
+          a.*,
+          c.name as client_name,
+          c.phone as client_phone,
+          s.name as service_name
+         FROM appointments a
+         JOIN clients c ON a.client_id = c.id
+         JOIN services s ON a.service_id = s.id
+         WHERE a.appointment_date = $1
+         AND a.status = 'confirmed'
+         AND a.reminder_sent = false
+         AND c.phone IS NOT NULL`
+      : `SELECT
+          a.*,
+          c.name as client_name,
+          c.phone as client_phone,
+          s.name as service_name
+         FROM appointments a
+         JOIN clients c ON a.client_id = c.id
+         JOIN services s ON a.service_id = s.id
+         WHERE a.appointment_date = ?
+         AND a.status = 'confirmed'
+         AND a.reminder_sent = 0
+         AND c.phone IS NOT NULL`;
+
+    const appointments = await db.all(query, [tomorrowStr]);
+
+    console.log(`📋 Encontrados ${appointments.length} agendamentos para lembrete WhatsApp`);
+
+    for (const appointment of appointments) {
+      try {
+        const result = await whatsappService.sendAppointmentReminder(
+          appointment.client_phone,
+          {
+            clientName: appointment.client_name,
+            serviceName: appointment.service_name,
+            date: appointment.appointment_date,
+            time: appointment.appointment_time
+          }
+        );
+
+        if (result.success) {
+          console.log(`✅ Lembrete WhatsApp enviado para ${appointment.client_phone}`);
+        } else {
+          console.error(`❌ Falha ao enviar lembrete WhatsApp: ${result.error}`);
+        }
+
+      } catch (error) {
+        console.error(`❌ Erro ao enviar lembrete para ${appointment.client_phone}:`, error);
+      }
+    }
+
+    console.log('✅ Processo de lembretes WhatsApp concluído');
+  } catch (err) {
+    console.error('Erro ao enviar lembretes WhatsApp:', err);
+  }
 };
 
 /**
@@ -173,9 +188,8 @@ const sendAppointmentRemindersWhatsApp = async () => {
  */
 const sendWaitlistNotificationWhatsApp = async (waitlistId) => {
   try {
-    const waitlistEntry = await new Promise((resolve, reject) => {
-      db.get(
-        `SELECT
+    const query = usePG
+      ? `SELECT
           w.*,
           c.name as client_name,
           c.phone as client_phone,
@@ -183,14 +197,18 @@ const sendWaitlistNotificationWhatsApp = async (waitlistId) => {
          FROM waitlist w
          JOIN clients c ON w.client_id = c.id
          JOIN services s ON w.service_id = s.id
-         WHERE w.id = ?`,
-        [waitlistId],
-        (err, row) => {
-          if (err) return reject(err);
-          resolve(row);
-        }
-      );
-    });
+         WHERE w.id = $1`
+      : `SELECT
+          w.*,
+          c.name as client_name,
+          c.phone as client_phone,
+          s.name as service_name
+         FROM waitlist w
+         JOIN clients c ON w.client_id = c.id
+         JOIN services s ON w.service_id = s.id
+         WHERE w.id = ?`;
+
+    const waitlistEntry = await db.get(query, [waitlistId]);
 
     if (!waitlistEntry || !waitlistEntry.client_phone) {
       return { success: false, error: 'Cliente não encontrado ou sem telefone' };
