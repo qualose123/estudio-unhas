@@ -3,7 +3,7 @@ import { X, Calendar, Clock, Sparkles } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Button from '../../components/Button';
 import Loading from '../../components/Loading';
-import { servicesAPI, appointmentsAPI } from '../../services/api';
+import { servicesAPI, appointmentsAPI, couponsAPI } from '../../services/api';
 
 const NewAppointmentModal = ({ onClose, onSuccess }) => {
   const [services, setServices] = useState([]);
@@ -16,7 +16,16 @@ const NewAppointmentModal = ({ onClose, onSuccess }) => {
     service_id: '',
     appointment_date: '',
     appointment_time: '',
-    notes: ''
+    notes: '',
+    coupon_code: ''
+  });
+
+  const [couponData, setCouponData] = useState({
+    code: '',
+    valid: false,
+    discount_type: '',
+    discount_value: 0,
+    validating: false
   });
 
   useEffect(() => {
@@ -57,6 +66,79 @@ const NewAppointmentModal = ({ onClose, onSuccess }) => {
     }
   };
 
+  const validateCoupon = async () => {
+    if (!formData.coupon_code.trim()) {
+      toast.error('Digite um código de cupom');
+      return;
+    }
+
+    setCouponData(prev => ({ ...prev, validating: true }));
+
+    try {
+      const response = await couponsAPI.validate(formData.coupon_code.trim());
+
+      if (response.data.valid) {
+        setCouponData({
+          code: formData.coupon_code.trim(),
+          valid: true,
+          discount_type: response.data.discount_type,
+          discount_value: response.data.discount_value,
+          validating: false
+        });
+        toast.success('Cupom aplicado com sucesso!');
+      } else {
+        setCouponData({
+          code: '',
+          valid: false,
+          discount_type: '',
+          discount_value: 0,
+          validating: false
+        });
+        toast.error(response.data.message || 'Cupom inválido');
+      }
+    } catch (error) {
+      console.error('Erro ao validar cupom:', error);
+      toast.error(error.response?.data?.error || 'Erro ao validar cupom');
+      setCouponData({
+        code: '',
+        valid: false,
+        discount_type: '',
+        discount_value: 0,
+        validating: false
+      });
+    }
+  };
+
+  const removeCoupon = () => {
+    setCouponData({
+      code: '',
+      valid: false,
+      discount_type: '',
+      discount_value: 0,
+      validating: false
+    });
+    setFormData(prev => ({ ...prev, coupon_code: '' }));
+    toast.success('Cupom removido');
+  };
+
+  const calculateFinalPrice = () => {
+    if (!selectedService) return 0;
+
+    let finalPrice = selectedService.price;
+
+    if (couponData.valid) {
+      if (couponData.discount_type === 'percentage') {
+        finalPrice = finalPrice * (1 - couponData.discount_value / 100);
+      } else {
+        finalPrice = finalPrice - couponData.discount_value;
+      }
+
+      if (finalPrice < 0) finalPrice = 0;
+    }
+
+    return finalPrice;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -68,7 +150,12 @@ const NewAppointmentModal = ({ onClose, onSuccess }) => {
     setSubmitting(true);
 
     try {
-      await appointmentsAPI.create(formData);
+      const dataToSend = {
+        ...formData,
+        coupon_code: couponData.valid ? couponData.code : undefined
+      };
+
+      await appointmentsAPI.create(dataToSend);
       toast.success('Agendamento criado com sucesso!');
       onSuccess();
     } catch (error) {
@@ -217,6 +304,54 @@ const NewAppointmentModal = ({ onClose, onSuccess }) => {
                 />
               </div>
 
+              {/* Cupom de Desconto */}
+              <div>
+                <label className="label">Cupom de Desconto (opcional)</label>
+                {couponData.valid ? (
+                  <div className="bg-green-50 border-2 border-green-500 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-green-700">
+                          Cupom "{couponData.code}" aplicado!
+                        </p>
+                        <p className="text-sm text-green-600">
+                          {couponData.discount_type === 'percentage'
+                            ? `${couponData.discount_value}% de desconto`
+                            : `R$ ${couponData.discount_value.toFixed(2)} de desconto`
+                          }
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={removeCoupon}
+                        className="text-red-600 hover:text-red-700 font-medium text-sm"
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={formData.coupon_code}
+                      onChange={(e) => setFormData(prev => ({ ...prev, coupon_code: e.target.value.toUpperCase() }))}
+                      placeholder="Digite o código do cupom"
+                      className="input flex-1"
+                      disabled={couponData.validating}
+                    />
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={validateCoupon}
+                      loading={couponData.validating}
+                    >
+                      Aplicar
+                    </Button>
+                  </div>
+                )}
+              </div>
+
               {/* Summary */}
               {selectedService && formData.appointment_date && formData.appointment_time && (
                 <div className="bg-gradient-soft p-4 rounded-lg">
@@ -226,7 +361,26 @@ const NewAppointmentModal = ({ onClose, onSuccess }) => {
                     <p><span className="text-neutral-600">Data:</span> <span className="font-medium">{new Date(formData.appointment_date + 'T00:00:00').toLocaleDateString('pt-BR')}</span></p>
                     <p><span className="text-neutral-600">Horário:</span> <span className="font-medium">{formData.appointment_time}</span></p>
                     <p><span className="text-neutral-600">Duração:</span> <span className="font-medium">{selectedService.duration} minutos</span></p>
-                    <p className="text-lg pt-2"><span className="text-neutral-600">Total:</span> <span className="font-bold text-primary-600">R$ {selectedService.price.toFixed(2)}</span></p>
+
+                    {couponData.valid && (
+                      <>
+                        <p className="pt-2"><span className="text-neutral-600">Preço original:</span> <span className="font-medium line-through text-neutral-500">R$ {selectedService.price.toFixed(2)}</span></p>
+                        <p className="text-green-600">
+                          <span className="font-medium">Desconto ({couponData.code}):</span> -
+                          {couponData.discount_type === 'percentage'
+                            ? `${couponData.discount_value}% (R$ ${(selectedService.price * couponData.discount_value / 100).toFixed(2)})`
+                            : `R$ ${couponData.discount_value.toFixed(2)}`
+                          }
+                        </p>
+                      </>
+                    )}
+
+                    <p className="text-lg pt-2">
+                      <span className="text-neutral-600">Total:</span>
+                      <span className={`font-bold ${couponData.valid ? 'text-green-600' : 'text-primary-600'}`}>
+                        R$ {calculateFinalPrice().toFixed(2)}
+                      </span>
+                    </p>
                   </div>
                 </div>
               )}

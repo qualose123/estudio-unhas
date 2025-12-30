@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Plus, History, User, Lock } from 'lucide-react';
+import { Calendar, Clock, Plus, History, User, Lock, Repeat, Image, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Badge from '../../components/Badge';
 import Loading from '../../components/Loading';
-import { appointmentsAPI } from '../../services/api';
+import { appointmentsAPI, waitlistAPI, recurringAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import NewAppointmentModal from './NewAppointmentModal';
 import ChangePasswordModal from '../../components/ChangePasswordModal';
@@ -17,6 +18,8 @@ const ClientDashboard = () => {
   const [showNewAppointmentModal, setShowNewAppointmentModal] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all', 'pending', 'confirmed', 'completed', 'cancelled'
+  const [waitlistCount, setWaitlistCount] = useState(0);
+  const [recurringCount, setRecurringCount] = useState(0);
 
   // Mostrar mensagem de boas-vindas apenas uma vez após login
   useEffect(() => {
@@ -32,6 +35,7 @@ const ClientDashboard = () => {
 
   useEffect(() => {
     fetchAppointments();
+    fetchAdditionalData();
   }, []);
 
   const fetchAppointments = async () => {
@@ -43,6 +47,19 @@ const ClientDashboard = () => {
       toast.error('Erro ao carregar agendamentos');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAdditionalData = async () => {
+    try {
+      const [waitlistRes, recurringRes] = await Promise.all([
+        waitlistAPI.getAll({ client_id: user.clientId }),
+        recurringAPI.getAll({ client_id: user.clientId })
+      ]);
+      setWaitlistCount(waitlistRes.data.filter(w => w.status === 'waiting').length);
+      setRecurringCount(recurringRes.data.filter(r => r.active).length);
+    } catch (error) {
+      console.error('Erro ao buscar dados adicionais:', error);
     }
   };
 
@@ -162,6 +179,73 @@ const ClientDashboard = () => {
               Novo Agendamento
             </Button>
           </Card>
+        </div>
+
+        {/* Quick Access Cards */}
+        <div className="grid md:grid-cols-4 gap-4 mb-8">
+          <Link to="/client/waitlist" className="group">
+            <Card className="hover:shadow-lg transition-all duration-300 h-full">
+              <div className="flex flex-col items-center text-center gap-3">
+                <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Clock className="text-yellow-600" size={24} />
+                </div>
+                <div>
+                  <p className="font-semibold text-neutral-800">Lista de Espera</p>
+                  {waitlistCount > 0 && (
+                    <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full mt-1 inline-block">
+                      {waitlistCount} aguardando
+                    </span>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </Link>
+
+          <Link to="/client/recurring" className="group">
+            <Card className="hover:shadow-lg transition-all duration-300 h-full">
+              <div className="flex flex-col items-center text-center gap-3">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Repeat className="text-blue-600" size={24} />
+                </div>
+                <div>
+                  <p className="font-semibold text-neutral-800">Recorrentes</p>
+                  {recurringCount > 0 && (
+                    <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full mt-1 inline-block">
+                      {recurringCount} ativos
+                    </span>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </Link>
+
+          <Link to="/gallery" className="group">
+            <Card className="hover:shadow-lg transition-all duration-300 h-full">
+              <div className="flex flex-col items-center text-center gap-3">
+                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Image className="text-purple-600" size={24} />
+                </div>
+                <div>
+                  <p className="font-semibold text-neutral-800">Galeria</p>
+                  <p className="text-xs text-neutral-500">Ver trabalhos</p>
+                </div>
+              </div>
+            </Card>
+          </Link>
+
+          <Link to="/reviews" className="group">
+            <Card className="hover:shadow-lg transition-all duration-300 h-full">
+              <div className="flex flex-col items-center text-center gap-3">
+                <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Star className="text-pink-600" size={24} />
+                </div>
+                <div>
+                  <p className="font-semibold text-neutral-800">Avaliações</p>
+                  <p className="text-xs text-neutral-500">Ver feedback</p>
+                </div>
+              </div>
+            </Card>
+          </Link>
         </div>
 
         {/* Filters */}
