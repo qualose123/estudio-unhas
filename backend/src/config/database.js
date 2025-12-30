@@ -53,8 +53,14 @@ if (usePG) {
       return new Promise((resolve, reject) => {
         pool.query(query, params)
           .then(result => {
+            // Se tem RETURNING, pega o ID do primeiro resultado
+            // Senão, retorna null como lastID
+            const lastID = result.rows && result.rows.length > 0
+              ? (result.rows[0].id || result.rows[0].ID || null)
+              : null;
+
             resolve({
-              lastID: result.rows[0]?.id || null,
+              lastID: lastID,
               changes: result.rowCount
             });
           })
