@@ -61,7 +61,7 @@ export default {
         // Cores especiais para dark mode (Elegante e Suave)
         dark: {
           bg: '#1A1625',       // Fundo principal dark (roxo bem escuro)
-          card: '#1E1E1E',     // Cards e superfícies (preto fosco claro)
+          card: '#2a1d2a',     // Cards e superfícies (roxo fosco - igual da imagem)
           surface: '#252030',  // Superfícies elevadas (roxo fosco)
           border: '#2D2837',   // Bordas suaves
           text: '#F5F5F5',     // Texto principal (branco gelo - não agride os olhos)
