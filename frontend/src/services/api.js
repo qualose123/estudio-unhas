@@ -86,4 +86,97 @@ export const passwordResetAPI = {
   confirm: (data) => api.post('/password-reset/confirm', data)
 };
 
+// Gallery endpoints
+export const galleryAPI = {
+  getAll: (params) => api.get('/gallery', { params }),
+  getById: (id) => api.get(`/gallery/${id}`),
+  create: (formData) => api.post('/gallery', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  update: (id, data) => api.put(`/gallery/${id}`, data),
+  delete: (id) => api.delete(`/gallery/${id}`),
+  like: (id) => api.post(`/gallery/${id}/like`),
+  incrementViews: (id) => api.post(`/gallery/${id}/view`)
+};
+
+// Reviews endpoints
+export const reviewsAPI = {
+  getAll: (params) => api.get('/reviews', { params }),
+  getById: (id) => api.get(`/reviews/${id}`),
+  create: (data) => api.post('/reviews', data),
+  update: (id, data) => api.put(`/reviews/${id}`, data),
+  delete: (id) => api.delete(`/reviews/${id}`),
+  respond: (id, data) => api.post(`/reviews/${id}/respond`, data),
+  getStats: () => api.get('/reviews/stats')
+};
+
+// Coupons endpoints
+export const couponsAPI = {
+  getAll: (params) => api.get('/coupons', { params }),
+  getById: (id) => api.get(`/coupons/${id}`),
+  validate: (code) => api.post('/coupons/validate', { code }),
+  create: (data) => api.post('/coupons', data),
+  update: (id, data) => api.put(`/coupons/${id}`, data),
+  delete: (id) => api.delete(`/coupons/${id}`)
+};
+
+// Waitlist endpoints
+export const waitlistAPI = {
+  getAll: (params) => api.get('/waitlist', { params }),
+  getById: (id) => api.get(`/waitlist/${id}`),
+  create: (data) => api.post('/waitlist', data),
+  notify: (id) => api.post(`/waitlist/${id}/notify`),
+  cancel: (id) => api.delete(`/waitlist/${id}`)
+};
+
+// Recurring appointments endpoints
+export const recurringAPI = {
+  getAll: (params) => api.get('/recurring-appointments', { params }),
+  getById: (id) => api.get(`/recurring-appointments/${id}`),
+  create: (data) => api.post('/recurring-appointments', data),
+  update: (id, data) => api.put(`/recurring-appointments/${id}`, data),
+  delete: (id) => api.delete(`/recurring-appointments/${id}`),
+  activate: (id) => api.post(`/recurring-appointments/${id}/activate`),
+  deactivate: (id) => api.post(`/recurring-appointments/${id}/deactivate`)
+};
+
+// Professionals endpoints
+export const professionalsAPI = {
+  getAll: (params) => api.get('/professionals', { params }),
+  getById: (id) => api.get(`/professionals/${id}`),
+  create: (data) => api.post('/professionals', data),
+  update: (id, data) => api.put(`/professionals/${id}`, data),
+  delete: (id) => api.delete(`/professionals/${id}`),
+  getCommissions: (id, params) => api.get(`/professionals/${id}/commissions`, { params })
+};
+
+// Commissions endpoints
+export const commissionsAPI = {
+  getAll: (params) => api.get('/commissions', { params }),
+  getById: (id) => api.get(`/commissions/${id}`),
+  markAsPaid: (id) => api.put(`/commissions/${id}/paid`),
+  getSummary: (params) => api.get('/commissions/summary', { params })
+};
+
+// Dashboard endpoints
+export const dashboardAPI = {
+  getStats: (params) => api.get('/dashboard/stats', { params }),
+  getFinancialReport: (params) => api.get('/dashboard/financial-report', { params }),
+  getUpcomingAppointments: (params) => api.get('/dashboard/upcoming-appointments', { params })
+};
+
+// Chat endpoints
+export const chatAPI = {
+  getHistory: (params) => api.get('/chat/history', { params }),
+  getConversations: () => api.get('/chat/conversations'),
+  markAsRead: (data) => api.post('/chat/mark-read', data),
+  deleteHistory: (clientId) => api.delete(`/chat/history/${clientId}`)
+};
+
+// WhatsApp endpoints
+export const whatsappAPI = {
+  getStatus: () => api.get('/whatsapp/status'),
+  sendTest: (data) => api.post('/whatsapp/test', data)
+};
+
 export default api;

@@ -14,8 +14,15 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import GoogleCallback from './pages/GoogleCallback';
+import Gallery from './pages/Gallery';
+import Reviews from './pages/Reviews';
 import ClientDashboard from './pages/client/ClientDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import GalleryManagement from './pages/admin/GalleryManagement';
+import Professionals from './pages/admin/Professionals';
+import Commissions from './pages/admin/Commissions';
+import Coupons from './pages/admin/Coupons';
+import FinancialReport from './pages/admin/FinancialReport';
 
 function App() {
   return (
@@ -32,6 +39,8 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/auth/google/callback" element={<GoogleCallback />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/reviews" element={<Reviews />} />
 
               {/* Client Routes */}
               <Route
@@ -49,6 +58,46 @@ function App() {
                 element={
                   <ProtectedRoute requireAdmin>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/gallery"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <GalleryManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/professionals"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <Professionals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/commissions"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <Commissions />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/coupons"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <Coupons />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/financial-report"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <FinancialReport />
                   </ProtectedRoute>
                 }
               />
