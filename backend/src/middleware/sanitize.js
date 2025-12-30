@@ -1,7 +1,10 @@
-const createDOMPurify = require('isomorphic-dompurify');
+const { JSDOM } = require('jsdom');
+const createDOMPurify = require('dompurify');
 const validator = require('validator');
 
-const DOMPurify = createDOMPurify();
+// Criar DOMPurify com JSDOM window
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
 
 /**
  * Middleware de sanitização de inputs
