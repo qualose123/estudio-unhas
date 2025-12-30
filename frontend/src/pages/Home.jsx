@@ -34,9 +34,9 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-800">
+    <div className="min-h-screen bg-gradient-soft dark:bg-dark-bg">
       {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-white py-20 px-4 overflow-hidden">
+      <section className="relative bg-gradient-primary dark:bg-gradient-primary-dark text-white py-20 px-4 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
@@ -84,7 +84,7 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 px-4 bg-gray-50 dark:bg-neutral-800">
+      <section className="py-16 px-4 bg-primary-50 dark:bg-dark-surface">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-12 text-gradient">
             Por que escolher nosso estúdio?
@@ -97,7 +97,7 @@ const Home = () => {
                   <feature.icon className="text-white" size={32} />
                 </div>
                 <h3 className="text-xl font-display font-semibold mb-2">{feature.title}</h3>
-                <p className="text-neutral-600 dark:text-white">{feature.description}</p>
+                <p className="text-neutral-600 dark:text-dark-text">{feature.description}</p>
               </Card>
             ))}
           </div>
@@ -105,12 +105,12 @@ const Home = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 px-4 bg-white dark:bg-neutral-800">
+      <section className="py-16 px-4 bg-gradient-peach dark:bg-dark-bg">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-4 text-gradient">
             Nossos Serviços
           </h2>
-          <p className="text-center text-neutral-600 dark:text-white mb-12 max-w-2xl mx-auto">
+          <p className="text-center text-neutral-600 dark:text-dark-text mb-12 max-w-2xl mx-auto">
             Oferecemos uma variedade de serviços para deixar suas unhas impecáveis
           </p>
 
@@ -120,9 +120,9 @@ const Home = () => {
                 <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Heart className="text-primary-600" size={24} />
                 </div>
-                <h3 className="font-display font-semibold text-lg mb-2">{service.name}</h3>
-                <p className="text-primary-600 dark:text-white font-semibold mb-1">{service.price}</p>
-                <p className="text-sm text-neutral-500 dark:text-white">{service.duration}</p>
+                <h3 className="font-display font-semibold text-lg mb-2 dark:text-dark-text">{service.name}</h3>
+                <p className="text-primary-600 dark:text-primary-400 font-semibold mb-1">{service.price}</p>
+                <p className="text-sm text-neutral-500 dark:text-dark-muted">{service.duration}</p>
               </Card>
             ))}
           </div>
@@ -131,13 +131,13 @@ const Home = () => {
 
       {/* CTA Section - Apenas para usuários não logados */}
       {!user && (
-        <section className="py-16 px-4 bg-gradient-soft dark:bg-neutral-800">
+        <section className="py-16 px-4 bg-secondary-50 dark:bg-dark-surface">
           <div className="max-w-4xl mx-auto text-center">
-            <Shield className="mx-auto text-primary-600 dark:text-primary-400 mb-6" size={48} />
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6 dark:text-white">
+            <Shield className="mx-auto text-primary-600 dark:text-secondary-400 mb-6" size={48} />
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6 dark:text-dark-text">
               Pronta para começar?
             </h2>
-            <p className="text-lg text-neutral-600 dark:text-white mb-8 max-w-2xl mx-auto">
+            <p className="text-lg text-neutral-600 dark:text-dark-muted mb-8 max-w-2xl mx-auto">
               Crie sua conta gratuitamente e agende seu primeiro horário em minutos
             </p>
             <Link to="/register">
