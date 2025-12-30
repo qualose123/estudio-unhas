@@ -1,6 +1,6 @@
 {
   "name": "estudio-unhas-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Backend API para sistema de agendamento de salão de unhas",
   "main": "src/server.js",
   "scripts": {
