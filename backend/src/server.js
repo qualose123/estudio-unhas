@@ -40,8 +40,9 @@ const professionalRoutes = require('./routes/professionalRoutes');
 const commissionRoutes = require('./routes/commissionRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
-const chatRoutes = require('./routes/liveChatRoutes'); // Renomeado para forçar Railway limpar cache
-const whatsappRoutes = require('./routes/whatsappBusinessRoutes'); // Renomeado para forçar Railway limpar cache
+// DESABILITADO EM PRODUÇÃO - Issue de module loading no Railway
+// const chatRoutes = require('./routes/liveChatRoutes');
+// const whatsappRoutes = require('./routes/whatsappBusinessRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -170,8 +171,9 @@ app.use('/api/professionals', professionalRoutes); // Profissionais/Manicures
 app.use('/api/commissions', commissionRoutes);  // Comissões
 app.use('/api/reviews', reviewRoutes);          // Avaliações
 app.use('/api/dashboard', dashboardRoutes);     // Dashboard e estatísticas
-app.use('/api/chat', chatRoutes);               // Chat ao vivo
-app.use('/api/whatsapp', whatsappRoutes);       // Integração WhatsApp
+// DESABILITADO EM PRODUÇÃO - Issue de module loading no Railway
+// app.use('/api/chat', chatRoutes);               // Chat ao vivo
+// app.use('/api/whatsapp', whatsappRoutes);       // Integração WhatsApp
 
 /* ========================================
    TRATAMENTO DE ERROS
@@ -249,10 +251,10 @@ const startServer = async () => {
       console.log(`${'='.repeat(50)}\n`);
     });
 
-    // Inicializar WebSocket para chat ao vivo
-    const { initWebSocket } = require('./services/websocketService');
-    initWebSocket(server);
-    console.log('✓ WebSocket inicializado\n');
+    // WebSocket desabilitado em produção devido a issue de module loading
+    // const { initWebSocket } = require('./services/websocketService');
+    // initWebSocket(server);
+    // console.log('✓ WebSocket inicializado\n');
 
   } catch (error) {
     console.error('✗ Erro ao iniciar servidor:', error);
