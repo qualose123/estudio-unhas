@@ -34,7 +34,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-900">
+    <div className="min-h-screen bg-white dark:bg-neutral-800">
       {/* Hero Section */}
       <section className="relative bg-gradient-primary text-white py-20 px-4 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
@@ -105,7 +105,7 @@ const Home = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 px-4 bg-white dark:bg-neutral-900">
+      <section className="py-16 px-4 bg-white dark:bg-neutral-800">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-4 text-gradient">
             Nossos Serviços
