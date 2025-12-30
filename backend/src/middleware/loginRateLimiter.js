@@ -40,15 +40,11 @@ const loginRateLimiter = rateLimit({
 
   // Handler customizado quando limite é excedido
   handler: (req, res) => {
-    const retryAfter = Math.ceil(req.rateLimit.resetTime / 1000); // Segundos
-    const remainingMinutes = Math.ceil((req.rateLimit.resetTime - Date.now()) / 60000);
-
     console.warn(`[SECURITY] Rate limit excedido - IP: ${req.ip}, Path: ${req.path}`);
 
     res.status(429).json({
       error: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
-      retryAfter: `${remainingMinutes} minuto(s)`,
-      resetTime: new Date(req.rateLimit.resetTime).toISOString()
+      retryAfter: '15 minuto(s)'
     });
   },
 

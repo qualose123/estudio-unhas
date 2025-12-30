@@ -62,7 +62,7 @@ const appointmentLimiter = rateLimit({
 const apiSlowDown = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutos
   delayAfter: 50, // Começa a desacelerar após 50 requisições
-  delayMs: 500, // Adiciona 500ms de delay por requisição adicional
+  delayMs: () => 500, // Função que retorna 500ms de delay por requisição adicional
   maxDelayMs: 5000 // Máximo 5 segundos de delay
 });
 
