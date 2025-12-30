@@ -40,7 +40,8 @@ const professionalRoutes = require('./routes/professionalRoutes');
 const commissionRoutes = require('./routes/commissionRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
-const chatRoutes = require('./routes/chatRoutes');
+// TEMPORARIAMENTE DESABILITADO - Quebrando loop de crash do Railway
+// const chatRoutes = require('./routes/chatRoutes');
 const whatsappRoutes = require('./routes/whatsappRoutes');
 
 const app = express();
@@ -170,7 +171,8 @@ app.use('/api/professionals', professionalRoutes); // Profissionais/Manicures
 app.use('/api/commissions', commissionRoutes);  // Comissões
 app.use('/api/reviews', reviewRoutes);          // Avaliações
 app.use('/api/dashboard', dashboardRoutes);     // Dashboard e estatísticas
-app.use('/api/chat', chatRoutes);               // Chat ao vivo
+// TEMPORARIAMENTE DESABILITADO - Quebrando loop de crash do Railway
+// app.use('/api/chat', chatRoutes);               // Chat ao vivo
 app.use('/api/whatsapp', whatsappRoutes);       // Integração WhatsApp
 
 /* ========================================
