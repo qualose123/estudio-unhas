@@ -199,3 +199,16 @@ html.dark input:-webkit-autofill:focus {
   -webkit-box-shadow: 0 0 0px 1000px #2a1d2a inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+/* Tabelas no dark mode - melhor contraste */
+html.dark thead {
+  background-color: #3a2d3a !important;
+}
+
+html.dark tbody tr {
+  border-bottom: 1px solid #3a2d3a !important;
+}
+
+html.dark tbody tr:hover {
+  background-color: #332833 !important;
+}
