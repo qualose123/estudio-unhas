@@ -82,10 +82,10 @@ const Register = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-2xl mb-4 shadow-glow">
             <Sparkles className="text-white" size={32} />
           </div>
-          <h1 className="text-3xl font-display font-bold text-gradient mb-2">
+          <h1 className="text-3xl font-display font-bold text-gradient dark:text-gradient mb-2">
             Crie sua Conta
           </h1>
-          <p className="text-neutral-600">Comece a agendar seus horários agora</p>
+          <p className="text-neutral-600 dark:text-gradient">Comece a agendar seus horários agora</p>
         </div>
 
         <Card className="animate-slide-up">

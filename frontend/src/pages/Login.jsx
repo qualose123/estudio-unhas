@@ -166,7 +166,7 @@ const Login = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-2xl mb-4 shadow-glow">
             <Sparkles className="text-white" size={32} />
           </div>
-          <h1 className="text-3xl font-display font-bold text-gradient mb-2">
+          <h1 className="text-3xl font-display font-bold text-gradient dark:text-gradient mb-2">
             Bem-vindo de Volta!
           </h1>
         </div>
