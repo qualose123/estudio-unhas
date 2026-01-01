@@ -206,6 +206,7 @@ html.dark thead {
 }
 
 html.dark tbody tr {
+  background-color: #2a1d2a !important;
   border-bottom: 1px solid #3a2d3a !important;
 }
 
