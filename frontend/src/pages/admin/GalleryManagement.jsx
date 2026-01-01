@@ -119,10 +119,10 @@ const GalleryManagement = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-display font-bold text-neutral-800 dark:text-white">
+            <h1 className="text-3xl font-display font-bold text-gradient dark:text-gradient">
               Gestão de Galeria
             </h1>
-            <p className="text-neutral-600 dark:text-neutral-400 mt-1">
+            <p className="text-neutral-600 dark:text-gradient mt-1">
               Gerencie as imagens da galeria pública
             </p>
           </div>
@@ -133,7 +133,7 @@ const GalleryManagement = () => {
               setFormData({ title: '', description: '', category: 'manicure', image: null });
               setShowModal(true);
             }}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center gap-2 rounded-2xl"
           >
             <FiUpload size={20} />
             Adicionar Imagem
