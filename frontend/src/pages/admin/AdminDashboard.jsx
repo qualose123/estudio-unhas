@@ -122,10 +122,10 @@ const AdminDashboard = () => {
         <div className="mb-8 animate-fade-in">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-display font-bold text-gradient mb-2">
+              <h1 className="text-3xl md:text-4xl font-display font-bold text-gradient dark:text-gradient mb-2">
                 Painel Administrativo
               </h1>
-              <p className="text-neutral-600">Gerencie agendamentos, serviços e horários</p>
+              <p className="text-gradient dark:text-gradient">Gerencie agendamentos, serviços e horários</p>
             </div>
             <Button
               variant="secondary"

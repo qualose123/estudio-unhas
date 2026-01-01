@@ -86,10 +86,10 @@ const Professionals = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-display font-bold text-neutral-800 dark:text-white">
+            <h1 className="text-3xl font-display font-bold text-gradient dark:text-gradient">
               Profissionais
             </h1>
-            <p className="text-neutral-600 dark:text-neutral-400 mt-1">
+            <p className="text-neutral-600 dark:text-gradient mt-1">
               Gerencie os profissionais e manicures
             </p>
           </div>
@@ -100,7 +100,7 @@ const Professionals = () => {
               setFormData({ name: '', email: '', phone: '', commission_rate: 50.0, active: true });
               setShowModal(true);
             }}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center gap-2 rounded-2xl"
           >
             <FiUserPlus size={20} />
             Adicionar Profissional

@@ -54,10 +54,10 @@ const Reviews = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-gradient mb-4">
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-gradient dark:text-gradient mb-4">
             Avaliações dos Clientes
           </h1>
-          <p className="text-lg text-neutral-600 dark:text-neutral-400">
+          <p className="text-lg text-neutral-600 dark:text-gradient">
             Veja o que nossos clientes dizem sobre nossos serviços
           </p>
         </div>

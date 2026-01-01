@@ -66,10 +66,10 @@ const Gallery = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-gradient mb-4">
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-gradient dark:text-gradient mb-4">
             Nossa Galeria
           </h1>
-          <p className="text-lg text-neutral-600 dark:text-neutral-400">
+          <p className="text-lg text-neutral-600 dark:text-gradient">
             Confira nossos trabalhos mais recentes
           </p>
         </div>

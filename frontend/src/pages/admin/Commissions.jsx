@@ -102,10 +102,10 @@ const Commissions = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-display font-bold text-neutral-800 dark:text-white">
+          <h1 className="text-3xl font-display font-bold text-gradient dark:text-gradient">
             Comissões
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-1">
+          <p className="text-neutral-600 dark:text-gradient mt-1">
             Gerencie as comissões dos profissionais
           </p>
         </div>

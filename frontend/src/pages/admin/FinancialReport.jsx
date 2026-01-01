@@ -93,10 +93,10 @@ const FinancialReport = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-display font-bold text-neutral-800 dark:text-white">
+            <h1 className="text-3xl font-display font-bold text-gradient dark:text-gradient">
               Relatório Financeiro
             </h1>
-            <p className="text-neutral-600 dark:text-neutral-400 mt-1">
+            <p className="text-neutral-600 dark:text-gradient mt-1">
               Análise detalhada de receitas e agendamentos
             </p>
           </div>
@@ -104,7 +104,7 @@ const FinancialReport = () => {
           <button
             onClick={exportReport}
             disabled={!report}
-            className="btn-primary flex items-center gap-2 w-full md:w-auto"
+            className="btn-primary flex items-center gap-2 w-full md:w-auto rounded-2xl"
           >
             <FiDownload size={20} />
             Exportar CSV
