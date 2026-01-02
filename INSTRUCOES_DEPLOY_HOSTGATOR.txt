@@ -1,0 +1,115 @@
+╔══════════════════════════════════════════════════════════════════╗
+║          INSTRUÇÕES DE DEPLOY - HOSTGATOR CPANEL                ║
+╔══════════════════════════════════════════════════════════════════╗
+
+📦 ARQUIVO PARA UPLOAD: frontend-hostgator-deploy.zip (115 KB)
+
+═══════════════════════════════════════════════════════════════════
+📋 PASSO A PASSO COMPLETO:
+═══════════════════════════════════════════════════════════════════
+
+1️⃣ ACESSE O CPANEL DO HOSTGATOR
+   - URL: https://seu-dominio.com.br:2083
+   - Faça login com suas credenciais
+
+2️⃣ ACESSE O GERENCIADOR DE ARQUIVOS
+   - Procure por "Gerenciador de Arquivos" (File Manager)
+   - Ou "Gerenciador de arquivos"
+   - Clique para abrir
+
+3️⃣ NAVEGUE ATÉ A PASTA DO SITE
+   - Clique em "public_html" (pasta raiz do seu domínio)
+   - Se for um subdomínio, navegue até a pasta específica
+
+4️⃣ LIMPE A PASTA (IMPORTANTE!)
+   - Selecione TODOS os arquivos e pastas antigas
+   - Clique em "Delete" ou "Excluir"
+   - Confirme a exclusão
+   - A pasta deve ficar VAZIA
+
+5️⃣ FAÇA UPLOAD DO ARQUIVO ZIP
+   - Clique no botão "Upload" no topo
+   - Selecione o arquivo: frontend-hostgator-deploy.zip
+   - Aguarde o upload completar (barra verde 100%)
+   - Feche a janela de upload
+
+6️⃣ EXTRAIA O ARQUIVO ZIP
+   - De volta ao Gerenciador de Arquivos
+   - Clique com botão direito no arquivo frontend-hostgator-deploy.zip
+   - Selecione "Extract" ou "Extrair"
+   - Confirme a extração
+   - Aguarde a conclusão
+
+7️⃣ DELETE O ARQUIVO ZIP
+   - Após extrair, delete o arquivo .zip
+   - Mantenha apenas os arquivos extraídos:
+     ✓ index.html
+     ✓ .htaccess
+     ✓ pasta assets/
+
+8️⃣ VERIFIQUE OS ARQUIVOS
+   Você deve ver:
+   ✓ index.html
+   ✓ .htaccess (pode estar oculto - ative "Mostrar arquivos ocultos")
+   ✓ pasta assets/ (contendo CSS e JS)
+
+═══════════════════════════════════════════════════════════════════
+⚙️ CONFIGURAÇÕES IMPORTANTES:
+═══════════════════════════════════════════════════════════════════
+
+✅ O arquivo .htaccess JÁ ESTÁ INCLUÍDO
+   - Configurado para React Router funcionar
+   - Configurado para compressão GZIP
+   - Configurado para cache de arquivos estáticos
+
+✅ Build otimizado para produção:
+   - CSS minificado (49.95 KB → gzip 9.11 KB)
+   - JavaScript minificado (397 KB → gzip 107 KB)
+   - Total: ~115 KB comprimido
+
+═══════════════════════════════════════════════════════════════════
+🔍 VERIFICAÇÃO FINAL:
+═══════════════════════════════════════════════════════════════════
+
+Após o deploy, teste:
+
+1. Acesse seu domínio: https://seu-dominio.com.br
+2. Teste navegação entre páginas (Home, Login, Galeria, etc)
+3. Teste o modo Dark/Light
+4. Teste o login de admin e cliente
+5. Verifique se todas as imagens carregam
+
+═══════════════════════════════════════════════════════════════════
+⚠️ PROBLEMAS COMUNS E SOLUÇÕES:
+═══════════════════════════════════════════════════════════════════
+
+❌ Problema: Página em branco
+✅ Solução: Verifique se o .htaccess foi extraído
+
+❌ Problema: Rotas não funcionam (erro 404)
+✅ Solução: Certifique-se que o .htaccess está na raiz
+
+❌ Problema: CSS não carrega
+✅ Solução: Verifique se a pasta assets/ foi extraída corretamente
+
+❌ Problema: "Arquivo não encontrado"
+✅ Solução: Limpe o cache do navegador (Ctrl+Shift+R)
+
+═══════════════════════════════════════════════════════════════════
+🎨 RECURSOS DO SISTEMA:
+═══════════════════════════════════════════════════════════════════
+
+✅ Dark Mode elegante (cores suaves para os olhos)
+✅ Modo Light com paleta feminina rosa
+✅ Todos os textos visíveis em ambos os modos
+✅ Tabelas com contraste aprimorado
+✅ Botões arredondados
+✅ Gradientes rosa nos títulos
+✅ Labels e inputs otimizados
+
+═══════════════════════════════════════════════════════════════════
+
+✨ Desenvolvido com Claude Code
+🚀 Pronto para produção!
+
+═══════════════════════════════════════════════════════════════════
