@@ -1,6 +1,7 @@
 const db = require('./database');
 const { usePG } = require('./database');
 const bcrypt = require('bcryptjs');
+const { runMigrations } = require('./migrations');
 
 /**
  * Inicialização do Banco de Dados
@@ -15,6 +16,7 @@ const initDatabase = async () => {
 
     if (usePG) {
       await initPostgreSQL();
+      await runMigrations(); // Rodar migrations após criar tabelas
     } else {
       await initSQLite();
     }
@@ -155,13 +157,13 @@ const initPostgreSQL = async () => {
     CREATE TABLE IF NOT EXISTS coupons (
       id SERIAL PRIMARY KEY,
       code VARCHAR(50) UNIQUE NOT NULL,
+      description TEXT,
       discount_type VARCHAR(20) NOT NULL,
       discount_value DECIMAL(10,2) NOT NULL,
       min_value DECIMAL(10,2) DEFAULT 0,
       max_uses INTEGER,
       used_count INTEGER DEFAULT 0,
-      valid_from TIMESTAMP,
-      valid_until TIMESTAMP,
+      expires_at TIMESTAMP,
       active BOOLEAN DEFAULT true,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -419,13 +421,13 @@ const initSQLite = () => {
           CREATE TABLE IF NOT EXISTS coupons (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             code TEXT UNIQUE NOT NULL,
+            description TEXT,
             discount_type TEXT NOT NULL,
             discount_value REAL NOT NULL,
             min_value REAL DEFAULT 0,
             max_uses INTEGER,
             used_count INTEGER DEFAULT 0,
-            valid_from DATETIME,
-            valid_until DATETIME,
+            expires_at DATETIME,
             active BOOLEAN DEFAULT 1,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
