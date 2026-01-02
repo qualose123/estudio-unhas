@@ -1,206 +1,189 @@
 const sgMail = require('@sendgrid/mail');
-require('dotenv').config();
 
-let emailEnabled = false;
-
-// Configurar SendGrid apenas se a API key estiver disponível
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  emailEnabled = true;
-  console.log('✅ SendGrid configurado - serviço de email habilitado');
-} else {
-  console.warn('⚠️  SENDGRID_API_KEY não configurada - funcionalidade de email desabilitada');
-}
-
-// Enviar email de recuperação de senha
-const sendPasswordResetEmail = async (email, name, code) => {
-  if (!emailEnabled) {
-    console.warn('⚠️  Email não configurado - não foi possível enviar email de recuperação');
-    throw new Error('Serviço de email não disponível no momento');
+// Configurar SendGrid com a API Key
+const setupSendGrid = () => {
+  const apiKey = process.env.SENDGRID_API_KEY;
+  
+  if (!apiKey) {
+    console.warn('⚠️  SENDGRID_API_KEY não configurada - emails não serão enviados');
+    return false;
   }
 
-  const msg = {
-    to: email,
-    from: process.env.SENDGRID_FROM_EMAIL || process.env.EMAIL_USER || 'noreply@example.com',
-    subject: 'Recuperação de Senha - Estúdio de Unhas',
-    html: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-          }
-          .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .header {
-            background-color: #ff69b4;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 5px 5px 0 0;
-          }
-          .content {
-            background-color: #f9f9f9;
-            padding: 30px;
-            border-radius: 0 0 5px 5px;
-          }
-          .code {
-            background-color: #fff;
-            border: 2px dashed #ff69b4;
-            padding: 20px;
-            text-align: center;
-            font-size: 32px;
-            font-weight: bold;
-            color: #ff69b4;
-            letter-spacing: 5px;
-            margin: 20px 0;
-            border-radius: 5px;
-          }
-          .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #666;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Recuperação de Senha</h1>
-          </div>
-          <div class="content">
-            <p>Olá, <strong>${name}</strong>!</p>
-            <p>Você solicitou a recuperação de senha da sua conta no Estúdio de Unhas.</p>
-            <p>Use o código abaixo para redefinir sua senha:</p>
-            <div class="code">${code}</div>
-            <p><strong>Este código expira em 15 minutos.</strong></p>
-            <p>Se você não solicitou esta recuperação, ignore este email.</p>
-          </div>
-          <div class="footer">
-            <p>© ${new Date().getFullYear()} Estúdio de Unhas - Todos os direitos reservados</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `
-  };
+  sgMail.setApiKey(apiKey);
+  console.log('✅ SendGrid configurado com sucesso');
+  return true;
+};
+
+// Inicializar SendGrid
+const isConfigured = setupSendGrid();
+
+/**
+ * Enviar email usando SendGrid
+ * @param {Object} options - Opções do email
+ * @param {string} options.to - Email do destinatário
+ * @param {string} options.subject - Assunto do email
+ * @param {string} options.text - Texto simples do email
+ * @param {string} options.html - HTML do email
+ */
+const sendEmail = async ({ to, subject, text, html }) => {
+  if (!isConfigured) {
+    console.warn('⚠️  SendGrid não configurado - email não enviado');
+    return { success: false, error: 'SendGrid não configurado' };
+  }
 
   try {
+    const msg = {
+      to,
+      from: process.env.SENDGRID_FROM_EMAIL || 'noreply@estudiounhas.com',
+      subject,
+      text,
+      html: html || text.replace(/\n/g, '<br>')
+    };
+
     await sgMail.send(msg);
-    console.log('✅ Email de recuperação enviado para:', email);
+    console.log(`✅ Email enviado com sucesso para: ${to}`);
     return { success: true };
   } catch (error) {
-    console.error('❌ Erro ao enviar email:', error.message);
+    console.error('❌ Erro ao enviar email:', error);
+    
     if (error.response) {
       console.error('Detalhes do erro SendGrid:', error.response.body);
     }
-    throw error;
+    
+    return { success: false, error: error.message };
   }
 };
 
-// Enviar email de confirmação de agendamento
-const sendAppointmentConfirmation = async (email, name, appointmentDetails) => {
-  const { service, date, time, price } = appointmentDetails;
+/**
+ * Enviar email de boas-vindas para novo cliente
+ */
+const sendWelcomeEmail = async (clientEmail, clientName) => {
+  const subject = '🎉 Bem-vindo ao Estúdio de Unhas!';
+  const text = `
+Olá ${clientName}!
 
-  if (!emailEnabled) {
-    console.warn('⚠️  Email não configurado - não foi possível enviar confirmação de agendamento');
-    throw new Error('Serviço de email não disponível no momento');
-  }
+Seja muito bem-vindo(a) ao Estúdio de Unhas! 💅
 
-  const msg = {
-    to: email,
-    from: process.env.SENDGRID_FROM_EMAIL || process.env.EMAIL_USER || 'noreply@example.com',
-    subject: 'Confirmação de Agendamento - Estúdio de Unhas',
-    html: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-          }
-          .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .header {
-            background-color: #ff69b4;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 5px 5px 0 0;
-          }
-          .content {
-            background-color: #f9f9f9;
-            padding: 30px;
-            border-radius: 0 0 5px 5px;
-          }
-          .details {
-            background-color: #fff;
-            border-left: 4px solid #ff69b4;
-            padding: 15px;
-            margin: 20px 0;
-          }
-          .details p {
-            margin: 10px 0;
-          }
-          .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #666;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Agendamento Confirmado!</h1>
-          </div>
-          <div class="content">
-            <p>Olá, <strong>${name}</strong>!</p>
-            <p>Seu agendamento foi realizado com sucesso!</p>
-            <div class="details">
-              <p><strong>Serviço:</strong> ${service}</p>
-              <p><strong>Data:</strong> ${new Date(date).toLocaleDateString('pt-BR')}</p>
-              <p><strong>Horário:</strong> ${time}</p>
-              <p><strong>Valor:</strong> R$ ${price.toFixed(2)}</p>
-            </div>
-            <p>Aguardamos você! Em caso de imprevistos, por favor entre em contato conosco com antecedência.</p>
-          </div>
-          <div class="footer">
-            <p>© ${new Date().getFullYear()} Estúdio de Unhas - Todos os direitos reservados</p>
-          </div>
+Estamos muito felizes em tê-lo(a) conosco. Agora você pode:
+✨ Agendar seus horários online
+📅 Ver seus agendamentos
+⭐ Avaliar nossos serviços
+
+Para começar, faça login em nossa plataforma e agende seu primeiro horário.
+
+Atenciosamente,
+Equipe Estúdio de Unhas
+  `;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff1f3;">
+      <div style="background: linear-gradient(135deg, #f43f75 0%, #e11d5f 100%); padding: 30px; border-radius: 15px; text-align: center;">
+        <h1 style="color: white; margin: 0;">🎉 Bem-vindo!</h1>
+      </div>
+      
+      <div style="background: white; padding: 30px; border-radius: 15px; margin-top: 20px;">
+        <h2 style="color: #f43f75;">Olá ${clientName}!</h2>
+        <p style="color: #2a1d2a; line-height: 1.6;">
+          Seja muito bem-vindo(a) ao <strong>Estúdio de Unhas</strong>! 💅
+        </p>
+        
+        <p style="color: #2a1d2a; line-height: 1.6;">
+          Estamos muito felizes em tê-lo(a) conosco. Agora você pode:
+        </p>
+        
+        <ul style="color: #2a1d2a; line-height: 1.8;">
+          <li>✨ Agendar seus horários online</li>
+          <li>📅 Ver seus agendamentos</li>
+          <li>⭐ Avaliar nossos serviços</li>
+        </ul>
+        
+        <p style="color: #2a1d2a; line-height: 1.6;">
+          Para começar, faça login em nossa plataforma e agende seu primeiro horário.
+        </p>
+        
+        <div style="text-align: center; margin-top: 30px;">
+          <a href="${process.env.FRONTEND_URL}/login" 
+             style="background: linear-gradient(135deg, #f43f75 0%, #e11d5f 100%); 
+                    color: white; 
+                    padding: 15px 30px; 
+                    text-decoration: none; 
+                    border-radius: 10px; 
+                    display: inline-block;
+                    font-weight: bold;">
+            Fazer Login
+          </a>
         </div>
-      </body>
-      </html>
-    `
-  };
+      </div>
+      
+      <div style="text-align: center; margin-top: 20px; color: #9b7e9b; font-size: 12px;">
+        <p>Atenciosamente,<br>Equipe Estúdio de Unhas</p>
+      </div>
+    </div>
+  `;
 
-  try {
-    await sgMail.send(msg);
-    console.log('✅ Email de confirmação enviado para:', email);
-    return { success: true };
-  } catch (error) {
-    console.error('❌ Erro ao enviar email:', error.message);
-    if (error.response) {
-      console.error('Detalhes do erro SendGrid:', error.response.body);
-    }
-    throw error;
-  }
+  return await sendEmail({ to: clientEmail, subject, text, html });
+};
+
+/**
+ * Enviar email de confirmação de agendamento
+ */
+const sendAppointmentConfirmation = async (clientEmail, appointmentDetails) => {
+  const { clientName, serviceName, date, time, price } = appointmentDetails;
+  
+  const subject = '✅ Agendamento Confirmado - Estúdio de Unhas';
+  const text = `
+Olá ${clientName}!
+
+Seu agendamento foi confirmado com sucesso! 🎉
+
+Detalhes do agendamento:
+📋 Serviço: ${serviceName}
+📅 Data: ${date}
+🕐 Horário: ${time}
+💰 Valor: R$ ${price}
+
+Estamos ansiosos para atendê-lo(a)!
+
+Atenciosamente,
+Equipe Estúdio de Unhas
+  `;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff1f3;">
+      <div style="background: linear-gradient(135deg, #f43f75 0%, #e11d5f 100%); padding: 30px; border-radius: 15px; text-align: center;">
+        <h1 style="color: white; margin: 0;">✅ Agendamento Confirmado</h1>
+      </div>
+      
+      <div style="background: white; padding: 30px; border-radius: 15px; margin-top: 20px;">
+        <h2 style="color: #f43f75;">Olá ${clientName}!</h2>
+        <p style="color: #2a1d2a; line-height: 1.6;">
+          Seu agendamento foi confirmado com sucesso! 🎉
+        </p>
+        
+        <div style="background: #fff1f3; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #f43f75; margin-top: 0;">Detalhes do Agendamento</h3>
+          <p style="color: #2a1d2a; margin: 10px 0;"><strong>📋 Serviço:</strong> ${serviceName}</p>
+          <p style="color: #2a1d2a; margin: 10px 0;"><strong>📅 Data:</strong> ${date}</p>
+          <p style="color: #2a1d2a; margin: 10px 0;"><strong>🕐 Horário:</strong> ${time}</p>
+          <p style="color: #2a1d2a; margin: 10px 0;"><strong>💰 Valor:</strong> R$ ${price}</p>
+        </div>
+        
+        <p style="color: #2a1d2a; line-height: 1.6;">
+          Estamos ansiosos para atendê-lo(a)! ✨
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 20px; color: #9b7e9b; font-size: 12px;">
+        <p>Atenciosamente,<br>Equipe Estúdio de Unhas</p>
+      </div>
+    </div>
+  `;
+
+  return await sendEmail({ to: clientEmail, subject, text, html });
 };
 
 module.exports = {
-  sendPasswordResetEmail,
+  sendEmail,
+  sendWelcomeEmail,
   sendAppointmentConfirmation
 };
