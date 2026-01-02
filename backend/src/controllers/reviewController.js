@@ -15,7 +15,7 @@ const createReview = async (req, res) => {
 
   try {
     // Verificar se agendamento existe e pertence ao cliente
-    const appointmentQuery = usePG()
+    const appointmentQuery = usePG
       ? `SELECT * FROM appointments WHERE id = $1 AND client_id = $2 AND status = 'completed'`
       : `SELECT * FROM appointments WHERE id = ? AND client_id = ? AND status = 'completed'`;
 
@@ -32,7 +32,7 @@ const createReview = async (req, res) => {
     }
 
     // Verificar se já foi avaliado
-    const existingQuery = usePG()
+    const existingQuery = usePG
       ? 'SELECT * FROM reviews WHERE appointment_id = $1'
       : 'SELECT * FROM reviews WHERE appointment_id = ?';
 
@@ -49,7 +49,7 @@ const createReview = async (req, res) => {
     }
 
     // Criar avaliação
-    const insertQuery = usePG()
+    const insertQuery = usePG
       ? `INSERT INTO reviews
          (appointment_id, client_id, service_id, professional_id, rating, comment)
          VALUES ($1, $2, $3, $4, $5, $6)
@@ -73,7 +73,7 @@ const createReview = async (req, res) => {
         function (err) {
           if (err) reject(err);
           else {
-            if (usePG()) {
+            if (usePG) {
               // For PostgreSQL, this.lastID is not available, need to get from RETURNING
               db.get('SELECT id FROM reviews WHERE appointment_id = $1', [appointment_id], (err, row) => {
                 if (err) reject(err);
@@ -87,7 +87,7 @@ const createReview = async (req, res) => {
       );
     });
 
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? 'SELECT * FROM reviews WHERE id = $1'
       : 'SELECT * FROM reviews WHERE id = ?';
 
@@ -130,22 +130,22 @@ const getAllReviews = async (req, res) => {
 
     // Não-admins só veem avaliações ativas
     if (!isAdmin) {
-      conditions.push(usePG() ? `r.active = $${paramIndex++}` : 'r.active = ?');
-      params.push(usePG() ? true : 1);
+      conditions.push(usePG ? `r.active = $${paramIndex++}` : 'r.active = ?');
+      params.push(usePG ? true : 1);
     }
 
     if (service_id) {
-      conditions.push(usePG() ? `r.service_id = $${paramIndex++}` : 'r.service_id = ?');
+      conditions.push(usePG ? `r.service_id = $${paramIndex++}` : 'r.service_id = ?');
       params.push(service_id);
     }
 
     if (professional_id) {
-      conditions.push(usePG() ? `r.professional_id = $${paramIndex++}` : 'r.professional_id = ?');
+      conditions.push(usePG ? `r.professional_id = $${paramIndex++}` : 'r.professional_id = ?');
       params.push(professional_id);
     }
 
     if (rating) {
-      conditions.push(usePG() ? `r.rating = $${paramIndex++}` : 'r.rating = ?');
+      conditions.push(usePG ? `r.rating = $${paramIndex++}` : 'r.rating = ?');
       params.push(rating);
     }
 
@@ -153,7 +153,7 @@ const getAllReviews = async (req, res) => {
       query += ' WHERE ' + conditions.join(' AND ');
     }
 
-    query += usePG()
+    query += usePG
       ? ` ORDER BY r.created_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`
       : ' ORDER BY r.created_at DESC LIMIT ? OFFSET ?';
     params.push(parseInt(limit), parseInt(offset));
@@ -189,14 +189,14 @@ const getReviewById = async (req, res) => {
       JOIN clients c ON r.client_id = c.id
       JOIN services s ON r.service_id = s.id
       LEFT JOIN professionals p ON r.professional_id = p.id
-      WHERE r.id = ${usePG() ? '$1' : '?'}
+      WHERE r.id = ${usePG ? '$1' : '?'}
     `;
 
     const params = [id];
 
     if (!isAdmin) {
-      query += usePG() ? ' AND r.active = $2' : ' AND r.active = ?';
-      params.push(usePG() ? true : 1);
+      query += usePG ? ' AND r.active = $2' : ' AND r.active = ?';
+      params.push(usePG ? true : 1);
     }
 
     const review = await new Promise((resolve, reject) => {
@@ -226,13 +226,13 @@ const updateReview = async (req, res) => {
 
   try {
     // Verificar permissão
-    let checkQuery = usePG()
+    let checkQuery = usePG
       ? 'SELECT * FROM reviews WHERE id = $1'
       : 'SELECT * FROM reviews WHERE id = ?';
     let checkParams = [id];
 
     if (!isAdmin) {
-      checkQuery += usePG() ? ' AND client_id = $2' : ' AND client_id = ?';
+      checkQuery += usePG ? ' AND client_id = $2' : ' AND client_id = ?';
       checkParams.push(req.user.id);
     }
 
@@ -256,12 +256,12 @@ const updateReview = async (req, res) => {
       if (rating < 1 || rating > 5) {
         return res.status(400).json({ error: 'Rating deve ser entre 1 e 5' });
       }
-      updates.push(usePG() ? `rating = $${paramIndex++}` : 'rating = ?');
+      updates.push(usePG ? `rating = $${paramIndex++}` : 'rating = ?');
       params.push(rating);
     }
 
     if (comment !== undefined) {
-      updates.push(usePG() ? `comment = $${paramIndex++}` : 'comment = ?');
+      updates.push(usePG ? `comment = $${paramIndex++}` : 'comment = ?');
       params.push(comment);
     }
 
@@ -272,7 +272,7 @@ const updateReview = async (req, res) => {
     updates.push('updated_at = CURRENT_TIMESTAMP');
     params.push(id);
 
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? `UPDATE reviews SET ${updates.join(', ')} WHERE id = $${paramIndex}`
       : `UPDATE reviews SET ${updates.join(', ')} WHERE id = ?`;
 
@@ -284,7 +284,7 @@ const updateReview = async (req, res) => {
       });
     });
 
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? 'SELECT * FROM reviews WHERE id = $1'
       : 'SELECT * FROM reviews WHERE id = ?';
 
@@ -313,7 +313,7 @@ const respondReview = async (req, res) => {
   }
 
   try {
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? `UPDATE reviews
          SET response = $1,
              response_date = CURRENT_TIMESTAMP,
@@ -337,7 +337,7 @@ const respondReview = async (req, res) => {
       return res.status(404).json({ error: 'Avaliação não encontrada' });
     }
 
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? 'SELECT * FROM reviews WHERE id = $1'
       : 'SELECT * FROM reviews WHERE id = ?';
 
@@ -361,13 +361,13 @@ const deleteReview = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? 'UPDATE reviews SET active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2'
       : 'UPDATE reviews SET active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
 
     const changes = await new Promise((resolve, reject) => {
       const db = require('../config/database');
-      db.run(updateQuery, [usePG() ? false : 0, id], function (err) {
+      db.run(updateQuery, [usePG ? false : 0, id], function (err) {
         if (err) reject(err);
         else resolve(this.changes);
       });
@@ -399,19 +399,19 @@ const getReviewStats = async (req, res) => {
         COUNT(CASE WHEN rating = 2 THEN 1 END) as two_stars,
         COUNT(CASE WHEN rating = 1 THEN 1 END) as one_star
       FROM reviews
-      WHERE active = ${usePG() ? '$1' : '?'}
+      WHERE active = ${usePG ? '$1' : '?'}
     `;
 
-    const params = [usePG() ? true : 1];
+    const params = [usePG ? true : 1];
     let paramIndex = 2;
 
     if (service_id) {
-      query += usePG() ? ` AND service_id = $${paramIndex++}` : ' AND service_id = ?';
+      query += usePG ? ` AND service_id = $${paramIndex++}` : ' AND service_id = ?';
       params.push(service_id);
     }
 
     if (professional_id) {
-      query += usePG() ? ` AND professional_id = $${paramIndex++}` : ' AND professional_id = ?';
+      query += usePG ? ` AND professional_id = $${paramIndex++}` : ' AND professional_id = ?';
       params.push(professional_id);
     }
 

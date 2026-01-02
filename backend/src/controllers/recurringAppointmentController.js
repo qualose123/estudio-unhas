@@ -45,7 +45,7 @@ const createRecurringAppointment = async (req, res) => {
 
   try {
     // Criar agendamento recorrente
-    const insertQuery = usePG()
+    const insertQuery = usePG
       ? `INSERT INTO recurring_appointments
          (client_id, service_id, frequency, day_of_week, appointment_time, start_date, end_date, notes)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -72,7 +72,7 @@ const createRecurringAppointment = async (req, res) => {
           if (err) {
             reject(err);
           } else {
-            if (usePG()) {
+            if (usePG) {
               db.get('SELECT id FROM recurring_appointments WHERE client_id = $1 AND start_date = $2 ORDER BY id DESC LIMIT 1', [client_id, start_date], (err, row) => {
                 if (err) reject(err);
                 else resolve(row.id);
@@ -93,7 +93,7 @@ const createRecurringAppointment = async (req, res) => {
     }
 
     // Buscar agendamento recorrente criado
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? `SELECT
           r.*,
           c.name as client_name,
@@ -160,13 +160,13 @@ const getRecurringAppointments = async (req, res) => {
 
     // Cliente só vê seus próprios agendamentos
     if (!isAdmin) {
-      conditions.push(usePG() ? `r.client_id = $${paramIndex++}` : 'r.client_id = ?');
+      conditions.push(usePG ? `r.client_id = $${paramIndex++}` : 'r.client_id = ?');
       params.push(req.user.id);
     }
 
     if (active !== undefined) {
-      conditions.push(usePG() ? `r.active = $${paramIndex++}` : 'r.active = ?');
-      params.push(active === 'true' ? (usePG() ? true : 1) : (usePG() ? false : 0));
+      conditions.push(usePG ? `r.active = $${paramIndex++}` : 'r.active = ?');
+      params.push(active === 'true' ? (usePG ? true : 1) : (usePG ? false : 0));
     }
 
     if (conditions.length > 0) {
@@ -210,14 +210,14 @@ const getRecurringAppointmentById = async (req, res) => {
       FROM recurring_appointments r
       JOIN clients c ON r.client_id = c.id
       JOIN services s ON r.service_id = s.id
-      WHERE r.id = ${usePG() ? '$1' : '?'}
+      WHERE r.id = ${usePG ? '$1' : '?'}
     `;
 
     const params = [id];
 
     // Cliente só pode ver seus próprios
     if (!isAdmin) {
-      query += usePG() ? ' AND r.client_id = $2' : ' AND r.client_id = ?';
+      query += usePG ? ' AND r.client_id = $2' : ' AND r.client_id = ?';
       params.push(req.user.id);
     }
 
@@ -250,13 +250,13 @@ const updateRecurringAppointment = async (req, res) => {
 
   try {
     // Verificar permissão
-    let checkQuery = usePG()
+    let checkQuery = usePG
       ? 'SELECT * FROM recurring_appointments WHERE id = $1'
       : 'SELECT * FROM recurring_appointments WHERE id = ?';
     let checkParams = [id];
 
     if (!isAdmin) {
-      checkQuery += usePG() ? ' AND client_id = $2' : ' AND client_id = ?';
+      checkQuery += usePG ? ' AND client_id = $2' : ' AND client_id = ?';
       checkParams.push(req.user.id);
     }
 
@@ -277,27 +277,27 @@ const updateRecurringAppointment = async (req, res) => {
     let paramIndex = 1;
 
     if (frequency !== undefined) {
-      updates.push(usePG() ? `frequency = $${paramIndex++}` : 'frequency = ?');
+      updates.push(usePG ? `frequency = $${paramIndex++}` : 'frequency = ?');
       params.push(frequency);
     }
     if (day_of_week !== undefined) {
-      updates.push(usePG() ? `day_of_week = $${paramIndex++}` : 'day_of_week = ?');
+      updates.push(usePG ? `day_of_week = $${paramIndex++}` : 'day_of_week = ?');
       params.push(day_of_week);
     }
     if (appointment_time !== undefined) {
-      updates.push(usePG() ? `appointment_time = $${paramIndex++}` : 'appointment_time = ?');
+      updates.push(usePG ? `appointment_time = $${paramIndex++}` : 'appointment_time = ?');
       params.push(appointment_time);
     }
     if (end_date !== undefined) {
-      updates.push(usePG() ? `end_date = $${paramIndex++}` : 'end_date = ?');
+      updates.push(usePG ? `end_date = $${paramIndex++}` : 'end_date = ?');
       params.push(end_date);
     }
     if (active !== undefined) {
-      updates.push(usePG() ? `active = $${paramIndex++}` : 'active = ?');
-      params.push(active ? (usePG() ? true : 1) : (usePG() ? false : 0));
+      updates.push(usePG ? `active = $${paramIndex++}` : 'active = ?');
+      params.push(active ? (usePG ? true : 1) : (usePG ? false : 0));
     }
     if (notes !== undefined) {
-      updates.push(usePG() ? `notes = $${paramIndex++}` : 'notes = ?');
+      updates.push(usePG ? `notes = $${paramIndex++}` : 'notes = ?');
       params.push(notes);
     }
 
@@ -308,7 +308,7 @@ const updateRecurringAppointment = async (req, res) => {
     updates.push('updated_at = CURRENT_TIMESTAMP');
     params.push(id);
 
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? `UPDATE recurring_appointments SET ${updates.join(', ')} WHERE id = $${paramIndex}`
       : `UPDATE recurring_appointments SET ${updates.join(', ')} WHERE id = ?`;
 
@@ -321,7 +321,7 @@ const updateRecurringAppointment = async (req, res) => {
     });
 
     // Buscar agendamento atualizado
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? `SELECT
           r.*,
           c.name as client_name,
@@ -364,13 +364,13 @@ const cancelRecurringAppointment = async (req, res) => {
   const isAdmin = req.user.type === 'admin';
 
   try {
-    let checkQuery = usePG()
+    let checkQuery = usePG
       ? 'SELECT * FROM recurring_appointments WHERE id = $1'
       : 'SELECT * FROM recurring_appointments WHERE id = ?';
     let checkParams = [id];
 
     if (!isAdmin) {
-      checkQuery += usePG() ? ' AND client_id = $2' : ' AND client_id = ?';
+      checkQuery += usePG ? ' AND client_id = $2' : ' AND client_id = ?';
       checkParams.push(req.user.id);
     }
 
@@ -386,13 +386,13 @@ const cancelRecurringAppointment = async (req, res) => {
       return res.status(404).json({ error: 'Agendamento recorrente não encontrado' });
     }
 
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? 'UPDATE recurring_appointments SET active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2'
       : 'UPDATE recurring_appointments SET active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
 
     await new Promise((resolve, reject) => {
       const db = require('../config/database');
-      db.run(updateQuery, [usePG() ? false : 0, id], (err) => {
+      db.run(updateQuery, [usePG ? false : 0, id], (err) => {
         if (err) reject(err);
         else resolve();
       });
@@ -410,7 +410,7 @@ const cancelRecurringAppointment = async (req, res) => {
  * Gera agendamentos para os próximos 3 meses
  */
 const generateUpcomingAppointments = async (recurringId) => {
-  const selectQuery = usePG()
+  const selectQuery = usePG
     ? 'SELECT * FROM recurring_appointments WHERE id = $1'
     : 'SELECT * FROM recurring_appointments WHERE id = ?';
 
@@ -452,7 +452,7 @@ const generateUpcomingAppointments = async (recurringId) => {
     const appointmentDate = currentDate.toISOString().split('T')[0];
 
     // Verificar se horário está disponível
-    const checkQuery = usePG()
+    const checkQuery = usePG
       ? `SELECT * FROM appointments
          WHERE appointment_date = $1
          AND appointment_time = $2
@@ -491,7 +491,7 @@ const generateUpcomingAppointments = async (recurringId) => {
 
   // Criar todos os agendamentos
   for (const apt of appointmentsToCreate) {
-    const insertQuery = usePG()
+    const insertQuery = usePG
       ? `INSERT INTO appointments
          (client_id, service_id, appointment_date, appointment_time, notes, status, recurring_id)
          VALUES ($1, $2, $3, $4, $5, 'confirmed', $6)`
@@ -528,13 +528,13 @@ const generateRecurringAppointments = async () => {
   console.log('🔄 Gerando agendamentos recorrentes...');
 
   try {
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? 'SELECT * FROM recurring_appointments WHERE active = $1'
       : 'SELECT * FROM recurring_appointments WHERE active = ?';
 
     const recurringList = await new Promise((resolve, reject) => {
       const db = require('../config/database');
-      db.all(selectQuery, [usePG() ? true : 1], (err, rows) => {
+      db.all(selectQuery, [usePG ? true : 1], (err, rows) => {
         if (err) reject(err);
         else resolve(rows);
       });

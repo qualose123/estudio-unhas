@@ -52,7 +52,7 @@ const uploadImage = async (req, res) => {
     const thumbnailUrl = `/uploads/gallery/${path.basename(thumbnailPath)}`;
 
     // Salvar no banco
-    const insertQuery = usePG()
+    const insertQuery = usePG
       ? `INSERT INTO gallery
          (title, description, image_url, thumbnail_url, service_id, tags, featured, uploaded_by)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -72,7 +72,7 @@ const uploadImage = async (req, res) => {
           thumbnailUrl,
           service_id || null,
           tags || null,
-          featured ? (usePG() ? true : 1) : (usePG() ? false : 0),
+          featured ? (usePG ? true : 1) : (usePG ? false : 0),
           uploadedBy
         ],
         function (err) {
@@ -82,7 +82,7 @@ const uploadImage = async (req, res) => {
             if (fs.existsSync(thumbnailPath)) fs.unlinkSync(thumbnailPath);
             reject(err);
           } else {
-            if (usePG()) {
+            if (usePG) {
               // For PostgreSQL, get ID from RETURNING clause
               db.get('SELECT id FROM gallery WHERE image_url = $1', [imageUrl], (err, row) => {
                 if (err) reject(err);
@@ -96,7 +96,7 @@ const uploadImage = async (req, res) => {
       );
     });
 
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? 'SELECT * FROM gallery WHERE id = $1'
       : 'SELECT * FROM gallery WHERE id = ?';
 
@@ -145,30 +145,30 @@ const getAllImages = async (req, res) => {
 
     // Não-admins só veem imagens ativas
     if (!isAdmin) {
-      conditions.push(usePG() ? `g.active = $${paramIndex++}` : 'g.active = ?');
-      params.push(usePG() ? true : 1);
+      conditions.push(usePG ? `g.active = $${paramIndex++}` : 'g.active = ?');
+      params.push(usePG ? true : 1);
     }
 
     if (service_id) {
-      conditions.push(usePG() ? `g.service_id = $${paramIndex++}` : 'g.service_id = ?');
+      conditions.push(usePG ? `g.service_id = $${paramIndex++}` : 'g.service_id = ?');
       params.push(service_id);
     }
 
     if (featured !== undefined) {
-      conditions.push(usePG() ? `g.featured = $${paramIndex++}` : 'g.featured = ?');
-      params.push(featured === 'true' ? (usePG() ? true : 1) : (usePG() ? false : 0));
+      conditions.push(usePG ? `g.featured = $${paramIndex++}` : 'g.featured = ?');
+      params.push(featured === 'true' ? (usePG ? true : 1) : (usePG ? false : 0));
     }
 
     if (active !== undefined && isAdmin) {
-      conditions.push(usePG() ? `g.active = $${paramIndex++}` : 'g.active = ?');
-      params.push(active === 'true' ? (usePG() ? true : 1) : (usePG() ? false : 0));
+      conditions.push(usePG ? `g.active = $${paramIndex++}` : 'g.active = ?');
+      params.push(active === 'true' ? (usePG ? true : 1) : (usePG ? false : 0));
     }
 
     if (conditions.length > 0) {
       query += ' WHERE ' + conditions.join(' AND ');
     }
 
-    query += usePG()
+    query += usePG
       ? ` ORDER BY g.featured DESC, g.created_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`
       : ' ORDER BY g.featured DESC, g.created_at DESC LIMIT ? OFFSET ?';
     params.push(parseInt(limit), parseInt(offset));
@@ -204,15 +204,15 @@ const getImageById = async (req, res) => {
       FROM gallery g
       LEFT JOIN services s ON g.service_id = s.id
       LEFT JOIN admins a ON g.uploaded_by = a.id
-      WHERE g.id = ${usePG() ? '$1' : '?'}
+      WHERE g.id = ${usePG ? '$1' : '?'}
     `;
 
     const params = [id];
 
     // Não-admins só veem imagens ativas
     if (!isAdmin) {
-      query += usePG() ? ' AND g.active = $2' : ' AND g.active = ?';
-      params.push(usePG() ? true : 1);
+      query += usePG ? ' AND g.active = $2' : ' AND g.active = ?';
+      params.push(usePG ? true : 1);
     }
 
     const image = await new Promise((resolve, reject) => {
@@ -228,7 +228,7 @@ const getImageById = async (req, res) => {
     }
 
     // Incrementar contador de visualizações
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? 'UPDATE gallery SET views = views + 1 WHERE id = $1'
       : 'UPDATE gallery SET views = views + 1 WHERE id = ?';
 
@@ -260,28 +260,28 @@ const updateImage = async (req, res) => {
     let paramIndex = 1;
 
     if (title !== undefined) {
-      updates.push(usePG() ? `title = $${paramIndex++}` : 'title = ?');
+      updates.push(usePG ? `title = $${paramIndex++}` : 'title = ?');
       params.push(title);
     }
     if (description !== undefined) {
-      updates.push(usePG() ? `description = $${paramIndex++}` : 'description = ?');
+      updates.push(usePG ? `description = $${paramIndex++}` : 'description = ?');
       params.push(description);
     }
     if (service_id !== undefined) {
-      updates.push(usePG() ? `service_id = $${paramIndex++}` : 'service_id = ?');
+      updates.push(usePG ? `service_id = $${paramIndex++}` : 'service_id = ?');
       params.push(service_id);
     }
     if (tags !== undefined) {
-      updates.push(usePG() ? `tags = $${paramIndex++}` : 'tags = ?');
+      updates.push(usePG ? `tags = $${paramIndex++}` : 'tags = ?');
       params.push(tags);
     }
     if (featured !== undefined) {
-      updates.push(usePG() ? `featured = $${paramIndex++}` : 'featured = ?');
-      params.push(featured ? (usePG() ? true : 1) : (usePG() ? false : 0));
+      updates.push(usePG ? `featured = $${paramIndex++}` : 'featured = ?');
+      params.push(featured ? (usePG ? true : 1) : (usePG ? false : 0));
     }
     if (active !== undefined) {
-      updates.push(usePG() ? `active = $${paramIndex++}` : 'active = ?');
-      params.push(active ? (usePG() ? true : 1) : (usePG() ? false : 0));
+      updates.push(usePG ? `active = $${paramIndex++}` : 'active = ?');
+      params.push(active ? (usePG ? true : 1) : (usePG ? false : 0));
     }
 
     if (updates.length === 0) {
@@ -291,7 +291,7 @@ const updateImage = async (req, res) => {
     updates.push('updated_at = CURRENT_TIMESTAMP');
     params.push(id);
 
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? `UPDATE gallery SET ${updates.join(', ')} WHERE id = $${paramIndex}`
       : `UPDATE gallery SET ${updates.join(', ')} WHERE id = ?`;
 
@@ -307,7 +307,7 @@ const updateImage = async (req, res) => {
       return res.status(404).json({ error: 'Imagem não encontrada' });
     }
 
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? 'SELECT * FROM gallery WHERE id = $1'
       : 'SELECT * FROM gallery WHERE id = ?';
 
@@ -334,7 +334,7 @@ const deleteImage = async (req, res) => {
 
   try {
     // Buscar imagem para obter URLs dos arquivos
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? 'SELECT * FROM gallery WHERE id = $1'
       : 'SELECT * FROM gallery WHERE id = ?';
 
@@ -351,7 +351,7 @@ const deleteImage = async (req, res) => {
     }
 
     // Deletar do banco
-    const deleteQuery = usePG()
+    const deleteQuery = usePG
       ? 'DELETE FROM gallery WHERE id = $1'
       : 'DELETE FROM gallery WHERE id = ?';
 
@@ -393,13 +393,13 @@ const likeImage = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? 'UPDATE gallery SET likes = likes + 1 WHERE id = $1 AND active = $2'
       : 'UPDATE gallery SET likes = likes + 1 WHERE id = ? AND active = ?';
 
     const changes = await new Promise((resolve, reject) => {
       const db = require('../config/database');
-      db.run(updateQuery, [id, usePG() ? true : 1], function (err) {
+      db.run(updateQuery, [id, usePG ? true : 1], function (err) {
         if (err) reject(err);
         else resolve(this.changes);
       });
@@ -409,7 +409,7 @@ const likeImage = async (req, res) => {
       return res.status(404).json({ error: 'Imagem não encontrada' });
     }
 
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? 'SELECT likes FROM gallery WHERE id = $1'
       : 'SELECT likes FROM gallery WHERE id = ?';
 
@@ -437,8 +437,8 @@ const getGalleryStats = async (req, res) => {
       COUNT(*) as total_images,
       SUM(views) as total_views,
       SUM(likes) as total_likes,
-      COUNT(CASE WHEN featured = ${usePG() ? 'true' : '1'} THEN 1 END) as featured_images,
-      COUNT(CASE WHEN active = ${usePG() ? 'true' : '1'} THEN 1 END) as active_images
+      COUNT(CASE WHEN featured = ${usePG ? 'true' : '1'} THEN 1 END) as featured_images,
+      COUNT(CASE WHEN active = ${usePG ? 'true' : '1'} THEN 1 END) as active_images
      FROM gallery`;
 
     const stats = await new Promise((resolve, reject) => {

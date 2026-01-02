@@ -15,7 +15,7 @@ const addToWaitlist = async (req, res) => {
 
   try {
     // Verificar se já está na lista de espera para o mesmo horário
-    const checkQuery = usePG()
+    const checkQuery = usePG
       ? `SELECT * FROM waitlist
          WHERE client_id = $1
          AND service_id = $2
@@ -44,7 +44,7 @@ const addToWaitlist = async (req, res) => {
     }
 
     // Adicionar à lista
-    const insertQuery = usePG()
+    const insertQuery = usePG
       ? `INSERT INTO waitlist
          (client_id, service_id, preferred_date, preferred_time, alternative_dates, notes)
          VALUES ($1, $2, $3, $4, $5, $6)
@@ -69,7 +69,7 @@ const addToWaitlist = async (req, res) => {
           if (err) {
             reject(err);
           } else {
-            if (usePG()) {
+            if (usePG) {
               db.get('SELECT id FROM waitlist WHERE client_id = $1 AND preferred_date = $2 AND preferred_time = $3 ORDER BY id DESC LIMIT 1',
                 [client_id, preferred_date, preferred_time], (err, row) => {
                 if (err) reject(err);
@@ -83,7 +83,7 @@ const addToWaitlist = async (req, res) => {
       );
     });
 
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? `SELECT
           w.*,
           c.name as client_name,
@@ -112,7 +112,7 @@ const addToWaitlist = async (req, res) => {
     });
 
     // Contar posição na fila
-    const positionQuery = usePG()
+    const positionQuery = usePG
       ? `SELECT COUNT(*) as position FROM waitlist
          WHERE service_id = $1
          AND preferred_date = $2
@@ -167,22 +167,22 @@ const getWaitlist = async (req, res) => {
 
     // Cliente só vê suas próprias entradas
     if (!isAdmin) {
-      conditions.push(usePG() ? `w.client_id = $${paramIndex++}` : 'w.client_id = ?');
+      conditions.push(usePG ? `w.client_id = $${paramIndex++}` : 'w.client_id = ?');
       params.push(req.user.id);
     }
 
     if (status) {
-      conditions.push(usePG() ? `w.status = $${paramIndex++}` : 'w.status = ?');
+      conditions.push(usePG ? `w.status = $${paramIndex++}` : 'w.status = ?');
       params.push(status);
     }
 
     if (date) {
-      conditions.push(usePG() ? `w.preferred_date = $${paramIndex++}` : 'w.preferred_date = ?');
+      conditions.push(usePG ? `w.preferred_date = $${paramIndex++}` : 'w.preferred_date = ?');
       params.push(date);
     }
 
     if (service_id) {
-      conditions.push(usePG() ? `w.service_id = $${paramIndex++}` : 'w.service_id = ?');
+      conditions.push(usePG ? `w.service_id = $${paramIndex++}` : 'w.service_id = ?');
       params.push(service_id);
     }
 
@@ -214,13 +214,13 @@ const cancelWaitlistEntry = async (req, res) => {
 
   try {
     // Verificar se a entrada pertence ao usuário (se não for admin)
-    let checkQuery = usePG()
+    let checkQuery = usePG
       ? 'SELECT * FROM waitlist WHERE id = $1'
       : 'SELECT * FROM waitlist WHERE id = ?';
     let checkParams = [id];
 
     if (!isAdmin) {
-      checkQuery += usePG() ? ' AND client_id = $2' : ' AND client_id = ?';
+      checkQuery += usePG ? ' AND client_id = $2' : ' AND client_id = ?';
       checkParams.push(req.user.id);
     }
 
@@ -240,7 +240,7 @@ const cancelWaitlistEntry = async (req, res) => {
       return res.status(400).json({ error: 'Entrada não pode ser cancelada' });
     }
 
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? `UPDATE waitlist
          SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
          WHERE id = $1`
@@ -267,7 +267,7 @@ const cancelWaitlistEntry = async (req, res) => {
 const notifyWaitlist = async (service_id, appointment_date, appointment_time) => {
   try {
     // Buscar primeiro da fila para este horário
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? `SELECT
           w.*,
           c.name as client_name,
@@ -313,7 +313,7 @@ const notifyWaitlist = async (service_id, appointment_date, appointment_time) =>
     // Marcar como notificado e definir expiração (24 horas)
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? `UPDATE waitlist
          SET status = 'notified',
              notified_at = CURRENT_TIMESTAMP,
@@ -355,7 +355,7 @@ const convertToAppointment = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const selectQuery = usePG()
+    const selectQuery = usePG
       ? 'SELECT * FROM waitlist WHERE id = $1'
       : 'SELECT * FROM waitlist WHERE id = ?';
 
@@ -376,7 +376,7 @@ const convertToAppointment = async (req, res) => {
     }
 
     // Verificar se horário ainda está disponível
-    const checkQuery = usePG()
+    const checkQuery = usePG
       ? `SELECT * FROM appointments
          WHERE appointment_date = $1
          AND appointment_time = $2
@@ -399,7 +399,7 @@ const convertToAppointment = async (req, res) => {
     }
 
     // Criar agendamento
-    const insertQuery = usePG()
+    const insertQuery = usePG
       ? `INSERT INTO appointments
          (client_id, service_id, appointment_date, appointment_time, notes, status)
          VALUES ($1, $2, $3, $4, $5, 'confirmed')
@@ -423,7 +423,7 @@ const convertToAppointment = async (req, res) => {
           if (err) {
             reject(err);
           } else {
-            if (usePG()) {
+            if (usePG) {
               db.get('SELECT id FROM appointments WHERE client_id = $1 AND appointment_date = $2 AND appointment_time = $3 ORDER BY id DESC LIMIT 1',
                 [entry.client_id, entry.preferred_date, entry.preferred_time], (err, row) => {
                 if (err) reject(err);
@@ -438,7 +438,7 @@ const convertToAppointment = async (req, res) => {
     });
 
     // Marcar entrada como convertida
-    const updateQuery = usePG()
+    const updateQuery = usePG
       ? `UPDATE waitlist
          SET status = 'converted', updated_at = CURRENT_TIMESTAMP
          WHERE id = $1`
