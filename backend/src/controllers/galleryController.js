@@ -1,279 +1,144 @@
+const db = require('../config/database');
 const { usePG } = require('../config/database');
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
 
 /**
- * Upload de imagem para a galeria (admin)
+ * Gallery Controller - Alinhado com schema:
+ * gallery (id, image_url, description, category, likes_count, views_count, featured, active, created_at, updated_at)
  */
+
+// Upload de imagem (admin)
 const uploadImage = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Nenhuma imagem foi enviada' });
     }
 
-    const { title, description, service_id, tags, featured } = req.body;
-    const uploadedBy = req.user.id;
+    const { description, category, featured } = req.body;
 
-    // Validação
-    if (!title) {
-      // Remover arquivo se validação falhar
-      fs.unlinkSync(req.file.path);
-      return res.status(400).json({ error: 'Título é obrigatório' });
-    }
-
-    // Comprimir imagem original
+    // Comprimir imagem
     const originalPath = req.file.path;
     const compressedPath = originalPath.replace(path.extname(originalPath), '-compressed.jpg');
 
     await sharp(originalPath)
-      .resize(1200, 1200, {
-        fit: 'inside',
-        withoutEnlargement: true
-      })
+      .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
       .jpeg({ quality: 85 })
       .toFile(compressedPath);
 
-    // Criar thumbnail
-    const thumbnailPath = originalPath.replace(path.extname(originalPath), '-thumb.jpg');
-
-    await sharp(originalPath)
-      .resize(400, 400, {
-        fit: 'cover'
-      })
-      .jpeg({ quality: 80 })
-      .toFile(thumbnailPath);
-
-    // Remover arquivo original não comprimido
     fs.unlinkSync(originalPath);
 
-    // Gerar URLs relativas
     const imageUrl = `/uploads/gallery/${path.basename(compressedPath)}`;
-    const thumbnailUrl = `/uploads/gallery/${path.basename(thumbnailPath)}`;
 
-    // Salvar no banco
-    const insertQuery = usePG
-      ? `INSERT INTO gallery
-         (title, description, image_url, thumbnail_url, service_id, tags, featured, uploaded_by)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         RETURNING id`
-      : `INSERT INTO gallery
-         (title, description, image_url, thumbnail_url, service_id, tags, featured, uploaded_by)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const query = usePG
+      ? `INSERT INTO gallery (image_url, description, category, featured)
+         VALUES ($1, $2, $3, $4) RETURNING id`
+      : `INSERT INTO gallery (image_url, description, category, featured)
+         VALUES (?, ?, ?, ?)`;
 
-    const imageId = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.run(
-        insertQuery,
-        [
-          title,
-          description || null,
-          imageUrl,
-          thumbnailUrl,
-          service_id || null,
-          tags || null,
-          featured ? (usePG ? true : 1) : (usePG ? false : 0),
-          uploadedBy
-        ],
-        function (err) {
-          if (err) {
-            // Limpar arquivos em caso de erro
-            if (fs.existsSync(compressedPath)) fs.unlinkSync(compressedPath);
-            if (fs.existsSync(thumbnailPath)) fs.unlinkSync(thumbnailPath);
-            reject(err);
-          } else {
-            if (usePG) {
-              // For PostgreSQL, get ID from RETURNING clause
-              db.get('SELECT id FROM gallery WHERE image_url = $1', [imageUrl], (err, row) => {
-                if (err) reject(err);
-                else resolve(row.id);
-              });
-            } else {
-              resolve(this.lastID);
-            }
-          }
-        }
-      );
-    });
+    const result = await db.run(query, [
+      imageUrl,
+      description || null,
+      category || null,
+      featured ? (usePG ? true : 1) : (usePG ? false : 0)
+    ]);
+
+    const imageId = usePG ? result.lastID : result.lastID;
 
     const selectQuery = usePG
       ? 'SELECT * FROM gallery WHERE id = $1'
       : 'SELECT * FROM gallery WHERE id = ?';
 
-    const image = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(selectQuery, [imageId], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
-
+    const image = await db.get(selectQuery, [imageId]);
     res.status(201).json(image);
-  } catch (error) {
-    console.error('Erro ao processar imagem:', error);
-
-    // Limpar arquivo em caso de erro
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
-
+  } catch (err) {
+    console.error('Erro ao fazer upload:', err);
     res.status(500).json({ error: 'Erro ao processar imagem' });
   }
 };
 
-/**
- * Listar imagens da galeria
- */
+// Listar todas as imagens
 const getAllImages = async (req, res) => {
-  const { service_id, featured, active, limit = 50, offset = 0 } = req.query;
-  const isAdmin = req.user?.type === 'admin';
-
   try {
-    let query = `
-      SELECT
-        g.*,
-        s.name as service_name,
-        a.name as uploaded_by_name
-      FROM gallery g
-      LEFT JOIN services s ON g.service_id = s.id
-      LEFT JOIN admins a ON g.uploaded_by = a.id
-    `;
+    const { featured, active, category } = req.query;
 
-    const conditions = [];
+    let query = 'SELECT * FROM gallery WHERE 1=1';
     const params = [];
     let paramIndex = 1;
 
-    // Não-admins só veem imagens ativas
-    if (!isAdmin) {
-      conditions.push(usePG ? `g.active = $${paramIndex++}` : 'g.active = ?');
-      params.push(usePG ? true : 1);
-    }
-
-    if (service_id) {
-      conditions.push(usePG ? `g.service_id = $${paramIndex++}` : 'g.service_id = ?');
-      params.push(service_id);
-    }
-
     if (featured !== undefined) {
-      conditions.push(usePG ? `g.featured = $${paramIndex++}` : 'g.featured = ?');
+      query += usePG ? ` AND featured = $${paramIndex++}` : ' AND featured = ?';
       params.push(featured === 'true' ? (usePG ? true : 1) : (usePG ? false : 0));
     }
 
-    if (active !== undefined && isAdmin) {
-      conditions.push(usePG ? `g.active = $${paramIndex++}` : 'g.active = ?');
+    if (active !== undefined) {
+      query += usePG ? ` AND active = $${paramIndex++}` : ' AND active = ?';
       params.push(active === 'true' ? (usePG ? true : 1) : (usePG ? false : 0));
     }
 
-    if (conditions.length > 0) {
-      query += ' WHERE ' + conditions.join(' AND ');
+    if (category) {
+      query += usePG ? ` AND category = $${paramIndex++}` : ' AND category = ?';
+      params.push(category);
     }
 
-    query += usePG
-      ? ` ORDER BY g.featured DESC, g.created_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`
-      : ' ORDER BY g.featured DESC, g.created_at DESC LIMIT ? OFFSET ?';
-    params.push(parseInt(limit), parseInt(offset));
+    query += ' ORDER BY created_at DESC';
 
-    const images = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.all(query, params, (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
-
+    const images = await db.all(query, params);
     res.json(images);
-  } catch (error) {
-    console.error('Erro ao buscar galeria:', error);
-    res.status(500).json({ error: 'Erro ao buscar galeria' });
+  } catch (err) {
+    console.error('Erro ao buscar galeria:', err);
+    res.status(500).json({ error: 'Erro ao carregar galeria' });
   }
 };
 
-/**
- * Obter detalhes de uma imagem
- */
+// Buscar imagem por ID
 const getImageById = async (req, res) => {
-  const { id } = req.params;
-  const isAdmin = req.user?.type === 'admin';
-
   try {
-    let query = `
-      SELECT
-        g.*,
-        s.name as service_name,
-        a.name as uploaded_by_name
-      FROM gallery g
-      LEFT JOIN services s ON g.service_id = s.id
-      LEFT JOIN admins a ON g.uploaded_by = a.id
-      WHERE g.id = ${usePG ? '$1' : '?'}
-    `;
+    const { id } = req.params;
 
-    const params = [id];
+    const query = usePG
+      ? 'SELECT * FROM gallery WHERE id = $1'
+      : 'SELECT * FROM gallery WHERE id = ?';
 
-    // Não-admins só veem imagens ativas
-    if (!isAdmin) {
-      query += usePG ? ' AND g.active = $2' : ' AND g.active = ?';
-      params.push(usePG ? true : 1);
-    }
-
-    const image = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(query, params, (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const image = await db.get(query, [id]);
 
     if (!image) {
       return res.status(404).json({ error: 'Imagem não encontrada' });
     }
 
-    // Incrementar contador de visualizações
+    // Incrementar views
     const updateQuery = usePG
-      ? 'UPDATE gallery SET views = views + 1 WHERE id = $1'
-      : 'UPDATE gallery SET views = views + 1 WHERE id = ?';
+      ? 'UPDATE gallery SET views_count = views_count + 1 WHERE id = $1'
+      : 'UPDATE gallery SET views_count = views_count + 1 WHERE id = ?';
 
-    await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.run(updateQuery, [id], (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+    await db.run(updateQuery, [id]);
 
+    image.views_count = (image.views_count || 0) + 1;
     res.json(image);
-  } catch (error) {
-    console.error('Erro ao buscar imagem:', error);
+  } catch (err) {
+    console.error('Erro ao buscar imagem:', err);
     res.status(500).json({ error: 'Erro ao buscar imagem' });
   }
 };
 
-/**
- * Atualizar informações da imagem (admin)
- */
+// Atualizar imagem (admin)
 const updateImage = async (req, res) => {
-  const { id } = req.params;
-  const { title, description, service_id, tags, featured, active } = req.body;
-
   try {
+    const { id } = req.params;
+    const { description, category, featured, active } = req.body;
+
     const updates = [];
     const params = [];
     let paramIndex = 1;
 
-    if (title !== undefined) {
-      updates.push(usePG ? `title = $${paramIndex++}` : 'title = ?');
-      params.push(title);
-    }
     if (description !== undefined) {
       updates.push(usePG ? `description = $${paramIndex++}` : 'description = ?');
       params.push(description);
     }
-    if (service_id !== undefined) {
-      updates.push(usePG ? `service_id = $${paramIndex++}` : 'service_id = ?');
-      params.push(service_id);
-    }
-    if (tags !== undefined) {
-      updates.push(usePG ? `tags = $${paramIndex++}` : 'tags = ?');
-      params.push(tags);
+    if (category !== undefined) {
+      updates.push(usePG ? `category = $${paramIndex++}` : 'category = ?');
+      params.push(category);
     }
     if (featured !== undefined) {
       updates.push(usePG ? `featured = $${paramIndex++}` : 'featured = ?');
@@ -288,22 +153,16 @@ const updateImage = async (req, res) => {
       return res.status(400).json({ error: 'Nenhum campo para atualizar' });
     }
 
-    updates.push('updated_at = CURRENT_TIMESTAMP');
+    updates.push(usePG ? 'updated_at = CURRENT_TIMESTAMP' : 'updated_at = CURRENT_TIMESTAMP');
     params.push(id);
 
-    const updateQuery = usePG
+    const query = usePG
       ? `UPDATE gallery SET ${updates.join(', ')} WHERE id = $${paramIndex}`
       : `UPDATE gallery SET ${updates.join(', ')} WHERE id = ?`;
 
-    const changes = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.run(updateQuery, params, function (err) {
-        if (err) reject(err);
-        else resolve(this.changes);
-      });
-    });
+    const result = await db.run(query, params);
 
-    if (changes === 0) {
+    if (result.changes === 0) {
       return res.status(404).json({ error: 'Imagem não encontrada' });
     }
 
@@ -311,43 +170,34 @@ const updateImage = async (req, res) => {
       ? 'SELECT * FROM gallery WHERE id = $1'
       : 'SELECT * FROM gallery WHERE id = ?';
 
-    const image = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(selectQuery, [id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
-
+    const image = await db.get(selectQuery, [id]);
     res.json(image);
-  } catch (error) {
-    console.error('Erro ao atualizar imagem:', error);
+  } catch (err) {
+    console.error('Erro ao atualizar imagem:', err);
     res.status(500).json({ error: 'Erro ao atualizar imagem' });
   }
 };
 
-/**
- * Deletar imagem (admin)
- */
+// Deletar imagem (admin)
 const deleteImage = async (req, res) => {
-  const { id } = req.params;
-
   try {
-    // Buscar imagem para obter URLs dos arquivos
+    const { id } = req.params;
+
+    // Buscar imagem para deletar arquivo
     const selectQuery = usePG
       ? 'SELECT * FROM gallery WHERE id = $1'
       : 'SELECT * FROM gallery WHERE id = ?';
 
-    const image = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(selectQuery, [id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const image = await db.get(selectQuery, [id]);
 
     if (!image) {
       return res.status(404).json({ error: 'Imagem não encontrada' });
+    }
+
+    // Deletar arquivo
+    const imagePath = path.join(__dirname, '../..', image.image_url);
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
     }
 
     // Deletar do banco
@@ -355,103 +205,64 @@ const deleteImage = async (req, res) => {
       ? 'DELETE FROM gallery WHERE id = $1'
       : 'DELETE FROM gallery WHERE id = ?';
 
-    await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.run(deleteQuery, [id], function (err) {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
-
-    // Deletar arquivos físicos
-    try {
-      const uploadsDir = path.join(__dirname, '../../uploads/gallery');
-      const imagePath = path.join(uploadsDir, path.basename(image.image_url));
-      const thumbPath = path.join(uploadsDir, path.basename(image.thumbnail_url));
-
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
-      if (fs.existsSync(thumbPath)) {
-        fs.unlinkSync(thumbPath);
-      }
-    } catch (fsError) {
-      console.error('Erro ao deletar arquivos físicos:', fsError);
-    }
+    await db.run(deleteQuery, [id]);
 
     res.json({ message: 'Imagem deletada com sucesso' });
-  } catch (error) {
-    console.error('Erro ao deletar imagem:', error);
+  } catch (err) {
+    console.error('Erro ao deletar imagem:', err);
     res.status(500).json({ error: 'Erro ao deletar imagem' });
   }
 };
 
-/**
- * Incrementar likes (público)
- */
+// Dar like em imagem
 const likeImage = async (req, res) => {
-  const { id } = req.params;
-
   try {
-    const updateQuery = usePG
-      ? 'UPDATE gallery SET likes = likes + 1 WHERE id = $1 AND active = $2'
-      : 'UPDATE gallery SET likes = likes + 1 WHERE id = ? AND active = ?';
+    const { id } = req.params;
 
-    const changes = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.run(updateQuery, [id, usePG ? true : 1], function (err) {
-        if (err) reject(err);
-        else resolve(this.changes);
-      });
-    });
+    const query = usePG
+      ? 'UPDATE gallery SET likes_count = likes_count + 1 WHERE id = $1 RETURNING *'
+      : 'UPDATE gallery SET likes_count = likes_count + 1 WHERE id = ?';
 
-    if (changes === 0) {
-      return res.status(404).json({ error: 'Imagem não encontrada' });
+    if (usePG) {
+      const result = await db.pool.query(query, [id]);
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Imagem não encontrada' });
+      }
+      res.json(result.rows[0]);
+    } else {
+      await db.run(query, [id]);
+      const image = await db.get('SELECT * FROM gallery WHERE id = ?', [id]);
+      res.json(image);
     }
-
-    const selectQuery = usePG
-      ? 'SELECT likes FROM gallery WHERE id = $1'
-      : 'SELECT likes FROM gallery WHERE id = ?';
-
-    const result = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(selectQuery, [id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
-
-    res.json({ likes: result.likes });
-  } catch (error) {
-    console.error('Erro ao curtir imagem:', error);
-    res.status(500).json({ error: 'Erro ao curtir imagem' });
+  } catch (err) {
+    console.error('Erro ao dar like:', err);
+    res.status(500).json({ error: 'Erro ao processar like' });
   }
 };
 
-/**
- * Obter estatísticas da galeria (admin)
- */
+// Estatísticas da galeria
 const getGalleryStats = async (req, res) => {
   try {
-    const query = `SELECT
-      COUNT(*) as total_images,
-      SUM(views) as total_views,
-      SUM(likes) as total_likes,
-      COUNT(CASE WHEN featured = ${usePG ? 'true' : '1'} THEN 1 END) as featured_images,
-      COUNT(CASE WHEN active = ${usePG ? 'true' : '1'} THEN 1 END) as active_images
-     FROM gallery`;
+    const statsQuery = usePG
+      ? `SELECT
+          COUNT(*) as total_images,
+          COUNT(CASE WHEN featured = true THEN 1 END) as featured_images,
+          COUNT(CASE WHEN active = true THEN 1 END) as active_images,
+          SUM(likes_count) as total_likes,
+          SUM(views_count) as total_views
+         FROM gallery`
+      : `SELECT
+          COUNT(*) as total_images,
+          COUNT(CASE WHEN featured = 1 THEN 1 END) as featured_images,
+          COUNT(CASE WHEN active = 1 THEN 1 END) as active_images,
+          SUM(likes_count) as total_likes,
+          SUM(views_count) as total_views
+         FROM gallery`;
 
-    const stats = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(query, [], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
-
+    const stats = await db.get(statsQuery, []);
     res.json(stats);
-  } catch (error) {
-    console.error('Erro ao buscar estatísticas:', error);
+  } catch (err) {
+    console.error('Erro ao buscar estatísticas:', err);
     res.status(500).json({ error: 'Erro ao buscar estatísticas' });
   }
 };
