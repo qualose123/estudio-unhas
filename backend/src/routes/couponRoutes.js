@@ -20,7 +20,7 @@ router.put('/:id', verifyToken, verifyAdmin, validateId, auditLog('update_coupon
 // Deletar cupom (admin apenas)
 router.delete('/:id', verifyToken, verifyAdmin, validateId, auditLog('delete_coupon', 'coupon'), couponController.deleteCoupon);
 
-// Histórico de uso de cupom (admin apenas)
-router.get('/:id/usage', verifyToken, verifyAdmin, validateId, couponController.getCouponUsageHistory);
+// Estatísticas de uso de cupom (admin apenas)
+router.get('/:id/stats', verifyToken, verifyAdmin, validateId, couponController.getCouponStats);
 
 module.exports = router;
