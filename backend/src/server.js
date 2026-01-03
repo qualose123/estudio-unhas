@@ -74,19 +74,29 @@ app.use(helmet());
  */
 const corsOptions = {
   origin: function (origin, callback) {
+    // Lista de origens permitidas
     const allowedOrigins = [
       process.env.FRONTEND_URL,
       'http://localhost:3000',
       'http://localhost:3001',
-      'http://localhost:5173'
+      'http://localhost:5173',
+      'https://estudiunhas.com.br',
+      'http://estudiunhas.com.br'
     ].filter(Boolean);
 
     // Permite requisições sem origin (como apps mobile ou Postman)
     if (!origin) return callback(null, true);
 
+    // Em produção, se FRONTEND_URL não estiver definida, permite todas as origens
+    // TEMPORÁRIO para debugging - DEVE ser configurado com domínio específico depois
+    if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_URL) {
+      return callback(null, true);
+    }
+
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.warn(`CORS bloqueou origem não permitida: ${origin}`);
       callback(new Error('Não permitido pelo CORS'));
     }
   },
