@@ -399,6 +399,8 @@ const convertToAppointment = async (req, res) => {
     }
 
     // Criar agendamento
+    const db = require('../config/database');
+
     const insertQuery = usePG
       ? `INSERT INTO appointments
          (client_id, service_id, appointment_date, appointment_time, notes, status)
@@ -408,35 +410,19 @@ const convertToAppointment = async (req, res) => {
          (client_id, service_id, appointment_date, appointment_time, notes, status)
          VALUES (?, ?, ?, ?, ?, ?)`;
 
-    const appointmentId = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.run(
-        insertQuery,
-        [
-          entry.client_id,
-          entry.service_id,
-          entry.preferred_date,
-          entry.preferred_time,
-          entry.notes,
-          'confirmed'
-        ],
-        function (err) {
-          if (err) {
-            reject(err);
-          } else {
-            if (usePG) {
-              db.get('SELECT id FROM appointments WHERE client_id = $1 AND appointment_date = $2 AND appointment_time = $3 ORDER BY id DESC LIMIT 1',
-                [entry.client_id, entry.preferred_date, entry.preferred_time], (err, row) => {
-                if (err) reject(err);
-                else resolve(row.id);
-              });
-            } else {
-              resolve(this.lastID);
-            }
-          }
-        }
-      );
-    });
+    const result = await db.run(
+      insertQuery,
+      [
+        entry.client_id,
+        entry.service_id,
+        entry.preferred_date,
+        entry.preferred_time,
+        entry.notes,
+        'confirmed'
+      ]
+    );
+
+    const appointmentId = result.lastID;
 
     // Marcar entrada como convertida
     const updateQuery = usePG

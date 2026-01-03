@@ -490,6 +490,8 @@ const generateUpcomingAppointments = async (recurringId) => {
   }
 
   // Criar todos os agendamentos
+  const db = require('../config/database');
+
   for (const apt of appointmentsToCreate) {
     const insertQuery = usePG
       ? `INSERT INTO appointments
@@ -499,25 +501,18 @@ const generateUpcomingAppointments = async (recurringId) => {
          (client_id, service_id, appointment_date, appointment_time, notes, recurring_id, status)
          VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
-    await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.run(
-        insertQuery,
-        [
-          recurring.client_id,
-          recurring.service_id,
-          apt.date,
-          apt.time,
-          recurring.notes,
-          recurringId,
-          'confirmed'
-        ],
-        (err) => {
-          if (err) reject(err);
-          else resolve();
-        }
-      );
-    });
+    await db.run(
+      insertQuery,
+      [
+        recurring.client_id,
+        recurring.service_id,
+        apt.date,
+        apt.time,
+        recurring.notes,
+        recurringId,
+        'confirmed'
+      ]
+    );
   }
 };
 
