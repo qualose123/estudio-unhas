@@ -103,6 +103,30 @@ const runMigrations = async () => {
     `);
     console.log('✅ Migration 8: Índices criados para reviews');
 
+    // Migration 9: Adicionar colunas faltantes na tabela waitlist
+    try {
+      await db.pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS alternative_dates TEXT`);
+      await db.pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS notes TEXT`);
+      console.log('✅ Migration 9: Colunas faltantes adicionadas em waitlist');
+    } catch (err) {
+      console.log('⚠️  Migration 9: Algumas colunas já existem em waitlist');
+    }
+
+    // Migration 10: Renomear colunas e adicionar novas na tabela recurring_appointments
+    try {
+      // Adicionar coluna notes se não existir
+      await db.pool.query(`ALTER TABLE recurring_appointments ADD COLUMN IF NOT EXISTS notes TEXT`);
+
+      // Renomear colunas para coincidir com o código
+      await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN recurrence_type TO frequency`).catch(() => {});
+      await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN preferred_day_of_week TO day_of_week`).catch(() => {});
+      await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN preferred_time TO appointment_time`).catch(() => {});
+
+      console.log('✅ Migration 10: Tabela recurring_appointments atualizada');
+    } catch (err) {
+      console.log('⚠️  Migration 10: Algumas alterações já foram aplicadas em recurring_appointments');
+    }
+
     console.log('✅ Todas as migrations executadas com sucesso!');
   } catch (error) {
     console.error('❌ Erro ao rodar migrations:', error);
