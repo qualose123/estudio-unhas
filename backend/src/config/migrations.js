@@ -14,22 +14,6 @@ const runMigrations = async () => {
   console.log('🔄 Rodando migrations...');
 
   try {
-    // Migration 0: RESET COMPLETO - Dropar TODAS as tabelas
-    console.log('🔥 Migration 0: RESET COMPLETO - Dropando TODAS as tabelas...');
-
-    // Dropar TUDO de uma vez com CASCADE
-    await db.pool.query(`
-      DROP SCHEMA public CASCADE;
-      CREATE SCHEMA public;
-      GRANT ALL ON SCHEMA public TO postgres;
-      GRANT ALL ON SCHEMA public TO public;
-    `);
-
-    console.log('✅ Migration 0: Schema público recriado do zero - TODOS OS DADOS FORAM DELETADOS');
-    console.log('ℹ️  O initDatabase vai recriar todas as tabelas com schemas corretos');
-
-    // Não executar mais nada - deixar o initDatabase recriar tudo
-    return;
     // Migration 1: Adicionar coluna description na tabela coupons
     await db.pool.query(`
       ALTER TABLE coupons
@@ -37,7 +21,7 @@ const runMigrations = async () => {
     `);
     console.log('✅ Migration 1: Coluna description adicionada em coupons');
 
-    // Migration 2: Adicionar coluna expires_at na tabela coupons (se não existir)
+    // Migration 2: Adicionar coluna expires_at na tabela coupons
     await db.pool.query(`
       ALTER TABLE coupons
       ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP
@@ -45,19 +29,8 @@ const runMigrations = async () => {
     console.log('✅ Migration 2: Coluna expires_at adicionada em coupons');
 
     // Migration 3: Garantir que professionals.email seja UNIQUE
-    // Primeiro, remover constraint antiga se existir
     await db.pool.query(`
-      DO $$ 
-      BEGIN
-        IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'professionals_email_key') THEN
-          ALTER TABLE professionals DROP CONSTRAINT professionals_email_key;
-        END IF;
-      END $$;
-    `);
-    
-    // Agora adicionar a constraint correta
-    await db.pool.query(`
-      DO $$ 
+      DO $$
       BEGIN
         IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'professionals_email_key') THEN
           ALTER TABLE professionals ADD CONSTRAINT professionals_email_key UNIQUE (email);
@@ -73,7 +46,6 @@ const runMigrations = async () => {
       CREATE INDEX IF NOT EXISTS idx_appointments_professional_id ON appointments(professional_id);
       CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(appointment_date);
       CREATE INDEX IF NOT EXISTS idx_gallery_category ON gallery(category);
-      CREATE INDEX IF NOT EXISTS idx_reviews_client_id ON reviews(client_id);
       CREATE INDEX IF NOT EXISTS idx_commissions_professional_id ON commissions(professional_id);
       CREATE INDEX IF NOT EXISTS idx_commissions_status ON commissions(status);
     `);
@@ -81,11 +53,33 @@ const runMigrations = async () => {
 
     // Migration 5: Adicionar colunas faltantes na tabela reviews
     try {
-      await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS service_id INTEGER REFERENCES services(id) ON DELETE CASCADE`);
-      await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS professional_id INTEGER REFERENCES professionals(id) ON DELETE SET NULL`);
+      await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS service_id INTEGER`);
+      await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS professional_id INTEGER`);
       await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS response TEXT`);
       await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS response_date TIMESTAMP`);
       await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true`);
+
+      // Adicionar foreign keys se as colunas foram criadas
+      await db.pool.query(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'reviews_service_id_fkey') THEN
+            ALTER TABLE reviews ADD CONSTRAINT reviews_service_id_fkey
+            FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE;
+          END IF;
+        END $$;
+      `);
+
+      await db.pool.query(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'reviews_professional_id_fkey') THEN
+            ALTER TABLE reviews ADD CONSTRAINT reviews_professional_id_fkey
+            FOREIGN KEY (professional_id) REFERENCES professionals(id) ON DELETE SET NULL;
+          END IF;
+        END $$;
+      `);
+
       console.log('✅ Migration 5: Colunas faltantes adicionadas em reviews');
     } catch (err) {
       console.log('⚠️  Migration 5: Erro:', err.message);
@@ -111,6 +105,7 @@ const runMigrations = async () => {
 
     // Migration 8: Adicionar índices para a tabela reviews
     await db.pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_reviews_client_id ON reviews(client_id);
       CREATE INDEX IF NOT EXISTS idx_reviews_service_id ON reviews(service_id);
       CREATE INDEX IF NOT EXISTS idx_reviews_professional_id ON reviews(professional_id);
       CREATE INDEX IF NOT EXISTS idx_reviews_active ON reviews(active);
@@ -119,56 +114,10 @@ const runMigrations = async () => {
     `);
     console.log('✅ Migration 8: Índices criados para reviews');
 
-    // Migration 9: Adicionar colunas faltantes na tabela waitlist
-    try {
-      await db.pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS alternative_dates TEXT`);
-      await db.pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS notes TEXT`);
-      console.log('✅ Migration 9: Colunas faltantes adicionadas em waitlist');
-    } catch (err) {
-      console.log('⚠️  Migration 9: Erro:', err.message);
-    }
-
-    // Migration 10: Corrigir colunas da tabela recurring_appointments
-    try {
-      // Adicionar colunas com nomes corretos se não existirem
-      await db.pool.query(`ALTER TABLE recurring_appointments ADD COLUMN IF NOT EXISTS frequency VARCHAR(20)`);
-      await db.pool.query(`ALTER TABLE recurring_appointments ADD COLUMN IF NOT EXISTS day_of_week INTEGER`);
-      await db.pool.query(`ALTER TABLE recurring_appointments ADD COLUMN IF NOT EXISTS appointment_time VARCHAR(10)`);
-      await db.pool.query(`ALTER TABLE recurring_appointments ADD COLUMN IF NOT EXISTS notes TEXT`);
-
-      // Copiar dados das colunas antigas para as novas (se existirem)
-      await db.pool.query(`
-        UPDATE recurring_appointments
-        SET frequency = recurrence_type
-        WHERE recurrence_type IS NOT NULL AND frequency IS NULL
-      `).catch(() => {});
-
-      await db.pool.query(`
-        UPDATE recurring_appointments
-        SET day_of_week = preferred_day_of_week
-        WHERE preferred_day_of_week IS NOT NULL AND day_of_week IS NULL
-      `).catch(() => {});
-
-      await db.pool.query(`
-        UPDATE recurring_appointments
-        SET appointment_time = preferred_time
-        WHERE preferred_time IS NOT NULL AND appointment_time IS NULL
-      `).catch(() => {});
-
-      // Remover colunas antigas (se existirem)
-      await db.pool.query(`ALTER TABLE recurring_appointments DROP COLUMN IF EXISTS recurrence_type`).catch(() => {});
-      await db.pool.query(`ALTER TABLE recurring_appointments DROP COLUMN IF EXISTS preferred_day_of_week`).catch(() => {});
-      await db.pool.query(`ALTER TABLE recurring_appointments DROP COLUMN IF EXISTS preferred_time`).catch(() => {});
-
-      console.log('✅ Migration 10: Tabela recurring_appointments atualizada');
-    } catch (err) {
-      console.log('⚠️  Migration 10: Erro ao atualizar recurring_appointments:', err.message);
-    }
-
     console.log('✅ Todas as migrations executadas com sucesso!');
   } catch (error) {
     console.error('❌ Erro ao rodar migrations:', error);
-    // Não lançar erro para não quebrar a inicialização
+    throw error;
   }
 };
 
