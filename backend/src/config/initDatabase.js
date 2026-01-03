@@ -603,7 +603,18 @@ const insertDefaultAdmin = async () => {
   }
 
   try {
-    const existing = await db.get('SELECT id FROM admins WHERE email = $1', [defaultAdminEmail]);
+    // Tentar verificar se admin existe (pode falhar se tabela não existir ainda)
+    let existing;
+    try {
+      if (usePG) {
+        existing = await db.get('SELECT id FROM admins WHERE email = $1', [defaultAdminEmail]);
+      } else {
+        existing = await db.get('SELECT id FROM admins WHERE email = ?', [defaultAdminEmail]);
+      }
+    } catch (err) {
+      // Tabela não existe ainda, então vamos criar o admin
+      existing = null;
+    }
 
     if (!existing) {
       const hashedPassword = await bcrypt.hash(defaultAdminPassword, 10);
@@ -637,7 +648,14 @@ const insertDefaultAdmin = async () => {
  */
 const insertDefaultServices = async () => {
   try {
-    const count = await db.get('SELECT COUNT(*) as count FROM services');
+    // Tentar verificar se serviços existem (pode falhar se tabela não existir)
+    let count;
+    try {
+      count = await db.get('SELECT COUNT(*) as count FROM services');
+    } catch (err) {
+      // Tabela não existe, count será undefined
+      count = { count: 0 };
+    }
 
     if (count && count.count === 0) {
       const defaultServices = [
