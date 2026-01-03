@@ -14,6 +14,31 @@ const runMigrations = async () => {
   console.log('🔄 Rodando migrations...');
 
   try {
+    // Migration 0: RESET COMPLETO - Dropar e recriar tabelas problemáticas
+    console.log('🔥 Migration 0: Reset completo do banco de dados...');
+
+    // Dropar tabelas na ordem correta (respeitando foreign keys)
+    await db.pool.query(`DROP TABLE IF EXISTS commissions CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS reviews CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS recurring_appointments CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS waitlist CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS appointments CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS gallery CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS time_blocks CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS chat_messages CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS oauth_sessions CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS password_reset_codes CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS audit_logs CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS coupons CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS professionals CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS services CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS clients CASCADE`);
+    await db.pool.query(`DROP TABLE IF EXISTS admins CASCADE`);
+
+    console.log('✅ Migration 0: Tabelas dropadas com sucesso');
+
+    // Agora o initDatabase vai recriar tudo do zero
+    return;
     // Migration 1: Adicionar coluna description na tabela coupons
     await db.pool.query(`
       ALTER TABLE coupons
