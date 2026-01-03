@@ -41,6 +41,23 @@ const initPostgreSQL = async () => {
     console.log('⚠️  Extensão UUID não disponível (opcional)');
   }
 
+  // Helper para executar queries com tratamento de erro
+  const executeQuery = async (description, query) => {
+    try {
+      await db.pool.query(query);
+      console.log(`✓ ${description}`);
+    } catch (err) {
+      console.error(`✗ Erro em ${description}:`, err.message);
+      console.error(`Query length: ${query.length}, position: ${err.position}`);
+      if (err.position) {
+        const pos = parseInt(err.position);
+        console.error(`Char at error position: "${query[pos-1]}" (${query.charCodeAt(pos-1)})`);
+        console.error(`Context: "${query.substring(Math.max(0, pos-10), Math.min(query.length, pos+10))}"`);
+      }
+      throw err;
+    }
+  };
+
   // Tabela de admins
   await db.pool.query(`
     CREATE TABLE IF NOT EXISTS admins (
@@ -239,7 +256,7 @@ const initPostgreSQL = async () => {
   `);
 
   // Adicionar coluna professional_id em appointments (se não existir)
-  await db.pool.query(`
+  await executeQuery('ALTER TABLE appointments ADD professional_id', `
     ALTER TABLE appointments
     ADD COLUMN IF NOT EXISTS professional_id INTEGER REFERENCES professionals(id) ON DELETE SET NULL
   `);
