@@ -39,8 +39,6 @@ const createReview = async (req, res) => {
     }
 
     // Criar avaliação
-    const db = require('../config/database');
-
     const insertQuery = usePG
       ? `INSERT INTO reviews
          (appointment_id, client_id, service_id, professional_id, rating, comment)
