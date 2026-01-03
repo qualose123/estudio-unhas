@@ -81,7 +81,10 @@ const corsOptions = {
       'http://localhost:3001',
       'http://localhost:5173',
       'https://estudiunhas.com.br',
-      'http://estudiunhas.com.br'
+      'http://estudiunhas.com.br',
+      // Hostgator domain
+      'https://raphaeljonhydelimaetil766541158000.2142060.meusitehospedator.com.br',
+      'http://raphaeljonhydelimaetil766541158000.2142060.meusitehospedator.com.br'
     ].filter(Boolean);
 
     // Permite requisições sem origin (como apps mobile ou Postman)
@@ -90,6 +93,7 @@ const corsOptions = {
     // Em produção, se FRONTEND_URL não estiver definida, permite todas as origens
     // TEMPORÁRIO para debugging - DEVE ser configurado com domínio específico depois
     if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_URL) {
+      console.log(`CORS: Permitindo origem ${origin} (modo permissivo)`);
       return callback(null, true);
     }
 
