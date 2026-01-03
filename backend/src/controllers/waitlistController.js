@@ -402,11 +402,11 @@ const convertToAppointment = async (req, res) => {
     const insertQuery = usePG
       ? `INSERT INTO appointments
          (client_id, service_id, appointment_date, appointment_time, notes, status)
-         VALUES ($1, $2, $3, $4, $5, 'confirmed')
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING id`
       : `INSERT INTO appointments
          (client_id, service_id, appointment_date, appointment_time, notes, status)
-         VALUES (?, ?, ?, ?, ?, 'confirmed')`;
+         VALUES (?, ?, ?, ?, ?, ?)`;
 
     const appointmentId = await new Promise((resolve, reject) => {
       const db = require('../config/database');
@@ -417,7 +417,8 @@ const convertToAppointment = async (req, res) => {
           entry.service_id,
           entry.preferred_date,
           entry.preferred_time,
-          entry.notes
+          entry.notes,
+          'confirmed'
         ],
         function (err) {
           if (err) {

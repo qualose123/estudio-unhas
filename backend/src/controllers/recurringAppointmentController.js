@@ -493,11 +493,11 @@ const generateUpcomingAppointments = async (recurringId) => {
   for (const apt of appointmentsToCreate) {
     const insertQuery = usePG
       ? `INSERT INTO appointments
-         (client_id, service_id, appointment_date, appointment_time, notes, status, recurring_id)
-         VALUES ($1, $2, $3, $4, $5, 'confirmed', $6)`
+         (client_id, service_id, appointment_date, appointment_time, notes, recurring_id, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`
       : `INSERT INTO appointments
-         (client_id, service_id, appointment_date, appointment_time, notes, status, recurring_id)
-         VALUES (?, ?, ?, ?, ?, 'confirmed', ?)`;
+         (client_id, service_id, appointment_date, appointment_time, notes, recurring_id, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
     await new Promise((resolve, reject) => {
       const db = require('../config/database');
@@ -509,7 +509,8 @@ const generateUpcomingAppointments = async (recurringId) => {
           apt.date,
           apt.time,
           recurring.notes,
-          recurringId
+          recurringId,
+          'confirmed'
         ],
         (err) => {
           if (err) reject(err);

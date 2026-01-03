@@ -152,10 +152,10 @@ const createAppointment = async (req, res) => {
 
     // Criar agendamento
     const insertQuery = usePG
-      ? `INSERT INTO appointments (client_id, service_id, appointment_date, appointment_time, notes, status)
-         VALUES ($1, $2, $3, $4, $5, 'pending') RETURNING id`
-      : `INSERT INTO appointments (client_id, service_id, appointment_date, appointment_time, notes, status)
-         VALUES (?, ?, ?, ?, ?, 'pending')`;
+      ? `INSERT INTO appointments (client_id, service_id, appointment_date, appointment_time, notes)
+         VALUES ($1, $2, $3, $4, $5) RETURNING id`
+      : `INSERT INTO appointments (client_id, service_id, appointment_date, appointment_time, notes)
+         VALUES (?, ?, ?, ?, ?)`;
     const result = await db.run(insertQuery, [client_id, service_id, appointment_date, appointment_time, notes || null]);
     const appointmentId = result.lastID;
 
