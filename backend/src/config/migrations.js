@@ -14,30 +14,21 @@ const runMigrations = async () => {
   console.log('🔄 Rodando migrations...');
 
   try {
-    // Migration 0: RESET COMPLETO - Dropar e recriar tabelas problemáticas
-    console.log('🔥 Migration 0: Reset completo do banco de dados...');
+    // Migration 0: RESET COMPLETO - Dropar TODAS as tabelas
+    console.log('🔥 Migration 0: RESET COMPLETO - Dropando TODAS as tabelas...');
 
-    // Dropar tabelas na ordem correta (respeitando foreign keys)
-    await db.pool.query(`DROP TABLE IF EXISTS commissions CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS reviews CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS recurring_appointments CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS waitlist CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS appointments CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS gallery CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS time_blocks CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS chat_messages CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS oauth_sessions CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS password_reset_codes CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS audit_logs CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS coupons CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS professionals CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS services CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS clients CASCADE`);
-    await db.pool.query(`DROP TABLE IF EXISTS admins CASCADE`);
+    // Dropar TUDO de uma vez com CASCADE
+    await db.pool.query(`
+      DROP SCHEMA public CASCADE;
+      CREATE SCHEMA public;
+      GRANT ALL ON SCHEMA public TO postgres;
+      GRANT ALL ON SCHEMA public TO public;
+    `);
 
-    console.log('✅ Migration 0: Tabelas dropadas com sucesso');
+    console.log('✅ Migration 0: Schema público recriado do zero - TODOS OS DADOS FORAM DELETADOS');
+    console.log('ℹ️  O initDatabase vai recriar todas as tabelas com schemas corretos');
 
-    // Agora o initDatabase vai recriar tudo do zero
+    // Não executar mais nada - deixar o initDatabase recriar tudo
     return;
     // Migration 1: Adicionar coluna description na tabela coupons
     await db.pool.query(`
