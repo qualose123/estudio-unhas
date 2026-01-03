@@ -15,17 +15,13 @@ const createReview = async (req, res) => {
 
   try {
     // Verificar se agendamento existe e pertence ao cliente
+    const db = require('../config/database');
+
     const appointmentQuery = usePG
       ? `SELECT * FROM appointments WHERE id = $1 AND client_id = $2 AND status = 'completed'`
       : `SELECT * FROM appointments WHERE id = ? AND client_id = ? AND status = 'completed'`;
 
-    const appointment = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(appointmentQuery, [appointment_id, client_id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const appointment = await db.get(appointmentQuery, [appointment_id, client_id]);
 
     if (!appointment) {
       return res.status(404).json({ error: 'Agendamento não encontrado ou ainda não foi concluído' });
@@ -36,19 +32,15 @@ const createReview = async (req, res) => {
       ? 'SELECT * FROM reviews WHERE appointment_id = $1'
       : 'SELECT * FROM reviews WHERE appointment_id = ?';
 
-    const existing = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(existingQuery, [appointment_id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const existing = await db.get(existingQuery, [appointment_id]);
 
     if (existing) {
       return res.status(400).json({ error: 'Este agendamento já foi avaliado' });
     }
 
     // Criar avaliação
+    const db = require('../config/database');
+
     const insertQuery = usePG
       ? `INSERT INTO reviews
          (appointment_id, client_id, service_id, professional_id, rating, comment)
@@ -58,46 +50,25 @@ const createReview = async (req, res) => {
          (appointment_id, client_id, service_id, professional_id, rating, comment)
          VALUES (?, ?, ?, ?, ?, ?)`;
 
-    const reviewId = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.run(
-        insertQuery,
-        [
-          appointment_id,
-          client_id,
-          appointment.service_id,
-          appointment.professional_id || null,
-          rating,
-          comment || null
-        ],
-        function (err) {
-          if (err) reject(err);
-          else {
-            if (usePG) {
-              // For PostgreSQL, this.lastID is not available, need to get from RETURNING
-              db.get('SELECT id FROM reviews WHERE appointment_id = $1', [appointment_id], (err, row) => {
-                if (err) reject(err);
-                else resolve(row.id);
-              });
-            } else {
-              resolve(this.lastID);
-            }
-          }
-        }
-      );
-    });
+    const result = await db.run(
+      insertQuery,
+      [
+        appointment_id,
+        client_id,
+        appointment.service_id,
+        appointment.professional_id || null,
+        rating,
+        comment || null
+      ]
+    );
+
+    const reviewId = result.lastID;
 
     const selectQuery = usePG
       ? 'SELECT * FROM reviews WHERE id = $1'
       : 'SELECT * FROM reviews WHERE id = ?';
 
-    const review = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(selectQuery, [reviewId], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const review = await db.get(selectQuery, [reviewId]);
 
     res.status(201).json(review);
   } catch (error) {
@@ -158,13 +129,8 @@ const getAllReviews = async (req, res) => {
       : ' ORDER BY r.created_at DESC LIMIT ? OFFSET ?';
     params.push(parseInt(limit), parseInt(offset));
 
-    const reviews = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.all(query, params, (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+    const db = require('../config/database');
+    const reviews = await db.all(query, params);
 
     res.json(reviews);
   } catch (error) {
@@ -179,6 +145,8 @@ const getReviewById = async (req, res) => {
   const isAdmin = req.user?.type === 'admin';
 
   try {
+    const db = require('../config/database');
+
     let query = `
       SELECT
         r.*,
@@ -199,13 +167,7 @@ const getReviewById = async (req, res) => {
       params.push(usePG ? true : 1);
     }
 
-    const review = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(query, params, (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const review = await db.get(query, params);
 
     if (!review) {
       return res.status(404).json({ error: 'Avaliação não encontrada' });
@@ -225,6 +187,8 @@ const updateReview = async (req, res) => {
   const isAdmin = req.user?.type === 'admin';
 
   try {
+    const db = require('../config/database');
+
     // Verificar permissão
     let checkQuery = usePG
       ? 'SELECT * FROM reviews WHERE id = $1'
@@ -236,13 +200,7 @@ const updateReview = async (req, res) => {
       checkParams.push(req.user.id);
     }
 
-    const review = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(checkQuery, checkParams, (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const review = await db.get(checkQuery, checkParams);
 
     if (!review) {
       return res.status(404).json({ error: 'Avaliação não encontrada' });
@@ -276,25 +234,13 @@ const updateReview = async (req, res) => {
       ? `UPDATE reviews SET ${updates.join(', ')} WHERE id = $${paramIndex}`
       : `UPDATE reviews SET ${updates.join(', ')} WHERE id = ?`;
 
-    await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.run(updateQuery, params, function (err) {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+    await db.run(updateQuery, params);
 
     const selectQuery = usePG
       ? 'SELECT * FROM reviews WHERE id = $1'
       : 'SELECT * FROM reviews WHERE id = ?';
 
-    const updated = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(selectQuery, [id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const updated = await db.get(selectQuery, [id]);
 
     res.json(updated);
   } catch (error) {
@@ -313,6 +259,8 @@ const respondReview = async (req, res) => {
   }
 
   try {
+    const db = require('../config/database');
+
     const updateQuery = usePG
       ? `UPDATE reviews
          SET response = $1,
@@ -325,15 +273,9 @@ const respondReview = async (req, res) => {
              updated_at = CURRENT_TIMESTAMP
          WHERE id = ?`;
 
-    const changes = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.run(updateQuery, [response, id], function (err) {
-        if (err) reject(err);
-        else resolve(this.changes);
-      });
-    });
+    const result = await db.run(updateQuery, [response, id]);
 
-    if (changes === 0) {
+    if (result.changes === 0) {
       return res.status(404).json({ error: 'Avaliação não encontrada' });
     }
 
@@ -341,13 +283,7 @@ const respondReview = async (req, res) => {
       ? 'SELECT * FROM reviews WHERE id = $1'
       : 'SELECT * FROM reviews WHERE id = ?';
 
-    const review = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(selectQuery, [id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const review = await db.get(selectQuery, [id]);
 
     res.json(review);
   } catch (error) {
@@ -361,19 +297,15 @@ const deleteReview = async (req, res) => {
   const { id } = req.params;
 
   try {
+    const db = require('../config/database');
+
     const updateQuery = usePG
       ? 'UPDATE reviews SET active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2'
       : 'UPDATE reviews SET active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
 
-    const changes = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.run(updateQuery, [usePG ? false : 0, id], function (err) {
-        if (err) reject(err);
-        else resolve(this.changes);
-      });
-    });
+    const result = await db.run(updateQuery, [usePG ? false : 0, id]);
 
-    if (changes === 0) {
+    if (result.changes === 0) {
       return res.status(404).json({ error: 'Avaliação não encontrada' });
     }
 
@@ -389,6 +321,8 @@ const getReviewStats = async (req, res) => {
   const { service_id, professional_id } = req.query;
 
   try {
+    const db = require('../config/database');
+
     let query = `
       SELECT
         COUNT(*) as total_reviews,
@@ -415,13 +349,7 @@ const getReviewStats = async (req, res) => {
       params.push(professional_id);
     }
 
-    const stats = await new Promise((resolve, reject) => {
-      const db = require('../config/database');
-      db.get(query, params, (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const stats = await db.get(query, params);
 
     // Arredondar média para 1 casa decimal
     if (stats.average_rating) {
