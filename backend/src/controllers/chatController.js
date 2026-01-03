@@ -12,10 +12,10 @@ const getChatHistory = async (req, res) => {
       SELECT
         cm.*,
         c.name as client_name,
-        u.name as admin_name
+        a.name as admin_name
       FROM chat_messages cm
       LEFT JOIN clients c ON cm.client_id = c.id
-      LEFT JOIN ${usePG ? 'admins' : 'users'} u ON cm.admin_id = u.id
+      LEFT JOIN admins a ON cm.admin_id = a.id
     `;
 
     const params = [];

@@ -180,8 +180,8 @@ const getDashboardStats = async (req, res) => {
 
     // Total de imagens na galeria
     const query11 = usePG
-      ? 'SELECT COUNT(*) as count, SUM(views) as views, SUM(likes) as likes FROM gallery WHERE active = true'
-      : 'SELECT COUNT(*) as count, SUM(views) as views, SUM(likes) as likes FROM gallery WHERE active = 1';
+      ? 'SELECT COUNT(*) as count, SUM(views_count) as views, SUM(likes_count) as likes FROM gallery WHERE active = true'
+      : 'SELECT COUNT(*) as count, SUM(views_count) as views, SUM(likes_count) as likes FROM gallery WHERE active = 1';
 
     const result11 = await db.get(query11, []);
     stats.gallery = {
