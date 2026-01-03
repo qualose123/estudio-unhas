@@ -112,27 +112,37 @@ const runMigrations = async () => {
       console.log('⚠️  Migration 9: Erro:', err.message);
     }
 
-    // Migration 10: Renomear colunas e adicionar novas na tabela recurring_appointments
+    // Migration 10: Corrigir colunas da tabela recurring_appointments
     try {
-      // Adicionar coluna notes se não existir
+      // Adicionar colunas com nomes corretos se não existirem
+      await db.pool.query(`ALTER TABLE recurring_appointments ADD COLUMN IF NOT EXISTS frequency VARCHAR(20)`);
+      await db.pool.query(`ALTER TABLE recurring_appointments ADD COLUMN IF NOT EXISTS day_of_week INTEGER`);
+      await db.pool.query(`ALTER TABLE recurring_appointments ADD COLUMN IF NOT EXISTS appointment_time VARCHAR(10)`);
       await db.pool.query(`ALTER TABLE recurring_appointments ADD COLUMN IF NOT EXISTS notes TEXT`);
 
-      // Renomear colunas para coincidir com o código (ignorar erros se coluna já foi renomeada)
-      try {
-        await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN recurrence_type TO frequency`);
-      } catch (e) {
-        if (!e.message.includes('does not exist')) throw e;
-      }
-      try {
-        await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN preferred_day_of_week TO day_of_week`);
-      } catch (e) {
-        if (!e.message.includes('does not exist')) throw e;
-      }
-      try {
-        await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN preferred_time TO appointment_time`);
-      } catch (e) {
-        if (!e.message.includes('does not exist')) throw e;
-      }
+      // Copiar dados das colunas antigas para as novas (se existirem)
+      await db.pool.query(`
+        UPDATE recurring_appointments
+        SET frequency = recurrence_type
+        WHERE recurrence_type IS NOT NULL AND frequency IS NULL
+      `).catch(() => {});
+
+      await db.pool.query(`
+        UPDATE recurring_appointments
+        SET day_of_week = preferred_day_of_week
+        WHERE preferred_day_of_week IS NOT NULL AND day_of_week IS NULL
+      `).catch(() => {});
+
+      await db.pool.query(`
+        UPDATE recurring_appointments
+        SET appointment_time = preferred_time
+        WHERE preferred_time IS NOT NULL AND appointment_time IS NULL
+      `).catch(() => {});
+
+      // Remover colunas antigas (se existirem)
+      await db.pool.query(`ALTER TABLE recurring_appointments DROP COLUMN IF EXISTS recurrence_type`).catch(() => {});
+      await db.pool.query(`ALTER TABLE recurring_appointments DROP COLUMN IF EXISTS preferred_day_of_week`).catch(() => {});
+      await db.pool.query(`ALTER TABLE recurring_appointments DROP COLUMN IF EXISTS preferred_time`).catch(() => {});
 
       console.log('✅ Migration 10: Tabela recurring_appointments atualizada');
     } catch (err) {
