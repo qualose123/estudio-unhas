@@ -72,7 +72,7 @@ const runMigrations = async () => {
       await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true`);
       console.log('✅ Migration 5: Colunas faltantes adicionadas em reviews');
     } catch (err) {
-      console.log('⚠️  Migration 5: Algumas colunas já existem em reviews');
+      console.log('⚠️  Migration 5: Erro:', err.message);
     }
 
     // Migration 6: Adicionar constraint UNIQUE em appointment_id na tabela reviews
@@ -109,7 +109,7 @@ const runMigrations = async () => {
       await db.pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS notes TEXT`);
       console.log('✅ Migration 9: Colunas faltantes adicionadas em waitlist');
     } catch (err) {
-      console.log('⚠️  Migration 9: Algumas colunas já existem em waitlist');
+      console.log('⚠️  Migration 9: Erro:', err.message);
     }
 
     // Migration 10: Renomear colunas e adicionar novas na tabela recurring_appointments
@@ -117,14 +117,26 @@ const runMigrations = async () => {
       // Adicionar coluna notes se não existir
       await db.pool.query(`ALTER TABLE recurring_appointments ADD COLUMN IF NOT EXISTS notes TEXT`);
 
-      // Renomear colunas para coincidir com o código
-      await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN recurrence_type TO frequency`).catch(() => {});
-      await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN preferred_day_of_week TO day_of_week`).catch(() => {});
-      await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN preferred_time TO appointment_time`).catch(() => {});
+      // Renomear colunas para coincidir com o código (ignorar erros se coluna já foi renomeada)
+      try {
+        await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN recurrence_type TO frequency`);
+      } catch (e) {
+        if (!e.message.includes('does not exist')) throw e;
+      }
+      try {
+        await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN preferred_day_of_week TO day_of_week`);
+      } catch (e) {
+        if (!e.message.includes('does not exist')) throw e;
+      }
+      try {
+        await db.pool.query(`ALTER TABLE recurring_appointments RENAME COLUMN preferred_time TO appointment_time`);
+      } catch (e) {
+        if (!e.message.includes('does not exist')) throw e;
+      }
 
       console.log('✅ Migration 10: Tabela recurring_appointments atualizada');
     } catch (err) {
-      console.log('⚠️  Migration 10: Algumas alterações já foram aplicadas em recurring_appointments');
+      console.log('⚠️  Migration 10: Erro ao atualizar recurring_appointments:', err.message);
     }
 
     console.log('✅ Todas as migrations executadas com sucesso!');
