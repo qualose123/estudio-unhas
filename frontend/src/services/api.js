@@ -1,6 +1,12 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Detectar ambiente automaticamente
+const API_URL = import.meta.env.VITE_API_URL ||
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api'
+    : 'https://estudio-unhas-production.up.railway.app/api');
+
+console.log('API_URL configurada:', API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
