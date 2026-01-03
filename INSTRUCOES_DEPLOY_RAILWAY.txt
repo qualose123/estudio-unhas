@@ -1,0 +1,138 @@
+╔══════════════════════════════════════════════════════════════════╗
+║            INSTRUÇÕES DE DEPLOY - BACKEND NO RAILWAY            ║
+╔══════════════════════════════════════════════════════════════════╗
+
+🚀 O CÓDIGO JÁ FOI ENVIADO PARA O GITHUB!
+
+═══════════════════════════════════════════════════════════════════
+📋 PASSO A PASSO PARA DEPLOY NO RAILWAY:
+═══════════════════════════════════════════════════════════════════
+
+1️⃣ ACESSE O RAILWAY
+   - URL: https://railway.app
+   - Faça login com sua conta GitHub
+
+2️⃣ ENCONTRE SEU PROJETO
+   - No dashboard, você verá o projeto "estudio-unhas"
+   - Clique no projeto
+
+3️⃣ RAILWAY VAI FAZER DEPLOY AUTOMÁTICO
+   - O Railway detecta que houve push no GitHub
+   - Ele vai automaticamente fazer o deploy das novas mudanças
+   - Aguarde o deploy completar (leva ~2-3 minutos)
+
+4️⃣ VERIFIQUE AS VARIÁVEIS DE AMBIENTE
+   Certifique-se que estas variáveis estão configuradas:
+
+   📌 OBRIGATÓRIAS:
+   ✓ NODE_ENV=production
+   ✓ PORT=5000 (ou deixe em branco para Railway escolher)
+   ✓ JWT_SECRET=sua_chave_secreta_super_segura_aqui
+   ✓ DATABASE_URL=postgresql://... (fornecido pelo Railway)
+   
+   📌 FRONTEND:
+   ✓ FRONTEND_URL=https://seu-dominio-hostgator.com.br
+   
+   📌 EMAIL (opcional):
+   ✓ EMAIL_HOST=smtp.gmail.com
+   ✓ EMAIL_PORT=587
+   ✓ EMAIL_USER=seu-email@gmail.com
+   ✓ EMAIL_PASSWORD=sua-senha-app
+   ✓ EMAIL_FROM=Estúdio de Unhas <seu-email@gmail.com>
+   
+   📌 GOOGLE OAUTH (opcional):
+   ✓ GOOGLE_CLIENT_ID=seu-client-id
+   ✓ GOOGLE_CLIENT_SECRET=seu-client-secret
+   ✓ GOOGLE_CALLBACK_URL=https://seu-backend.railway.app/api/auth/google/callback
+
+5️⃣ IMPORTANTE: ATUALIZAR FRONTEND_URL
+   - Clique em "Variables" no Railway
+   - Procure por FRONTEND_URL
+   - Altere para o domínio do seu Hostgator
+   - Exemplo: https://seu-dominio.com.br
+   - Clique em "Save" ou "Deploy"
+
+6️⃣ OBTENHA A URL DO BACKEND
+   - No Railway, vá em "Settings"
+   - Copie a URL pública (exemplo: https://estudio-unhas-production.up.railway.app)
+   - Você vai usar essa URL no frontend
+
+═══════════════════════════════════════════════════════════════════
+🔧 ATUALIZAR FRONTEND APÓS DEPLOY DO BACKEND:
+═══════════════════════════════════════════════════════════════════
+
+Após o backend estar no ar, você precisa atualizar o frontend:
+
+1. Abra o arquivo: frontend/.env
+2. Altere VITE_API_URL para a URL do Railway:
+   VITE_API_URL=https://estudio-unhas-production.up.railway.app
+
+3. Refaça o build:
+   cd frontend
+   npm run build
+
+4. Crie novo zip:
+   # No Windows PowerShell:
+   cd build
+   Compress-Archive -Path * -DestinationPath ..\..\frontend-hostgator-deploy-FINAL.zip -Force
+
+5. Faça upload novamente no Hostgator seguindo as mesmas instruções
+
+═══════════════════════════════════════════════════════════════════
+✅ CORREÇÕES IMPLEMENTADAS NO BACKEND:
+═══════════════════════════════════════════════════════════════════
+
+✅ DOMPurify corrigido (erro "sanitize is not a function")
+✅ Rate limiters atualizados (compatível com v7)
+✅ CORS configurado para aceitar Hostgator
+✅ PostgreSQL configurado no Railway
+✅ Admin padrão criado automaticamente
+✅ Migrations rodando automaticamente
+
+═══════════════════════════════════════════════════════════════════
+🔍 VERIFICAÇÃO DO BACKEND:
+═══════════════════════════════════════════════════════════════════
+
+Após o deploy, teste:
+
+1. Health check: https://SEU-BACKEND.railway.app/health
+   Deve retornar: {"status":"ok","timestamp":"..."}
+
+2. Teste de CORS: Abra o frontend e faça login
+   - Deve funcionar sem erros de CORS
+
+3. Verifique logs no Railway:
+   - Clique em "Deployments"
+   - Veja se há erros nos logs
+
+═══════════════════════════════════════════════════════════════════
+⚠️ PROBLEMAS COMUNS E SOLUÇÕES:
+═══════════════════════════════════════════════════════════════════
+
+❌ Problema: Deploy falhou
+✅ Solução: Verifique os logs no Railway, pode ser variável faltando
+
+❌ Problema: CORS error no frontend
+✅ Solução: Verifique se FRONTEND_URL está correto no Railway
+
+❌ Problema: "Database connection failed"
+✅ Solução: Verifique se o PostgreSQL está linkado ao projeto
+
+❌ Problema: Google OAuth não funciona
+✅ Solução: Atualize GOOGLE_CALLBACK_URL com URL do Railway
+
+═══════════════════════════════════════════════════════════════════
+📊 CREDENCIAIS PADRÃO DO ADMIN:
+═══════════════════════════════════════════════════════════════════
+
+Email: admin@estudiounhas.com
+Senha: 123052Ryan.
+
+IMPORTANTE: Troque essa senha após o primeiro login!
+
+═══════════════════════════════════════════════════════════════════
+
+✨ Desenvolvido com Claude Code
+🚀 Backend pronto para produção!
+
+═══════════════════════════════════════════════════════════════════

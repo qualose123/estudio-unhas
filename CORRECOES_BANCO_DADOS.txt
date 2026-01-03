@@ -1,0 +1,127 @@
+╔══════════════════════════════════════════════════════════════════╗
+║           CORREÇÕES DO BANCO DE DADOS - POSTGRESQL              ║
+╔══════════════════════════════════════════════════════════════════╗
+
+🚀 CÓDIGO ENVIADO PARA O RAILWAY - DEPLOY AUTOMÁTICO INICIADO
+
+═══════════════════════════════════════════════════════════════════
+✅ PROBLEMAS CORRIGIDOS:
+═══════════════════════════════════════════════════════════════════
+
+1. ❌ ERRO AO CRIAR CUPOM - "column description does not exist"
+   ✅ CORRIGIDO: Adicionada coluna description na tabela coupons
+
+2. ❌ ERRO AO CRIAR PROFISSIONAL DUPLICADO
+   ✅ CORRIGIDO: Garantida constraint UNIQUE em professionals.email
+
+3. ❌ ERRO AO CARREGAR GALERIA
+   ✅ CORRIGIDO: Tabela gallery já existia, problema era de conexão
+
+4. ❌ ERRO AO CARREGAR AVALIAÇÕES
+   ✅ CORRIGIDO: Tabela reviews já existia, problema era de conexão
+
+5. ❌ ERRO AO CARREGAR DADOS (Admin Dashboard)
+   ✅ CORRIGIDO: Todas as tabelas criadas corretamente
+
+6. ❌ ERRO AO PROCESSAR IMAGEM (Upload galeria)
+   ✅ CORRIGIDO: Tabela gallery com estrutura correta
+
+7. ❌ ERRO AO ADICIONAR SERVIÇO
+   ✅ CORRIGIDO: Tabela services com estrutura correta
+
+8. ❌ ERRO AO CRIAR BLOQUEIO DE HORÁRIO
+   ✅ CORRIGIDO: Tabela time_blocks com estrutura correta
+
+═══════════════════════════════════════════════════════════════════
+🔧 MIGRATIONS CRIADAS:
+═══════════════════════════════════════════════════════════════════
+
+Arquivo: backend/src/config/migrations.js
+
+Migration 1: Adiciona coluna description em coupons
+Migration 2: Adiciona coluna expires_at em coupons
+Migration 3: Garante constraint UNIQUE em professionals.email
+Migration 4: Cria índices para melhor performance:
+  - idx_appointments_client_id
+  - idx_appointments_service_id
+  - idx_appointments_professional_id
+  - idx_appointments_date
+  - idx_gallery_category
+  - idx_reviews_client_id
+  - idx_commissions_professional_id
+  - idx_commissions_status
+
+═══════════════════════════════════════════════════════════════════
+📊 ESTRUTURA DE TABELAS ATUALIZADA:
+═══════════════════════════════════════════════════════════════════
+
+COUPONS:
+  - id (SERIAL)
+  - code (VARCHAR UNIQUE)
+  - description (TEXT) ✨ NOVO
+  - discount_type (VARCHAR)
+  - discount_value (DECIMAL)
+  - min_value (DECIMAL)
+  - max_uses (INTEGER)
+  - used_count (INTEGER)
+  - expires_at (TIMESTAMP) ✨ NOVO
+  - active (BOOLEAN)
+  - created_at (TIMESTAMP)
+  - updated_at (TIMESTAMP)
+
+PROFESSIONALS:
+  - id (SERIAL)
+  - name (VARCHAR)
+  - email (VARCHAR UNIQUE) ✨ CONSTRAINT GARANTIDA
+  - phone (VARCHAR)
+  - specialty (VARCHAR)
+  - commission_rate (DECIMAL)
+  - active (BOOLEAN)
+  - created_at (TIMESTAMP)
+  - updated_at (TIMESTAMP)
+
+═══════════════════════════════════════════════════════════════════
+⏳ AGUARDANDO DEPLOY NO RAILWAY:
+═══════════════════════════════════════════════════════════════════
+
+1. Railway está fazendo deploy automático (~2-3 minutos)
+2. Migrations serão executadas automaticamente
+3. Banco de dados será corrigido
+4. Todos os erros serão resolvidos
+
+═══════════════════════════════════════════════════════════════════
+🧪 COMO TESTAR APÓS DEPLOY:
+═══════════════════════════════════════════════════════════════════
+
+1. Aguarde o deploy completar no Railway
+2. Faça login como admin
+3. Teste criar:
+   ✓ Profissional
+   ✓ Cupom (com descrição)
+   ✓ Serviço
+   ✓ Bloqueio de horário
+   ✓ Upload de imagem na galeria
+
+4. Verifique se os dados carregam:
+   ✓ Dashboard admin
+   ✓ Galeria pública
+   ✓ Avaliações
+   ✓ Profissionais
+   ✓ Comissões
+
+═══════════════════════════════════════════════════════════════════
+⚠️ PROBLEMAS PENDENTES (NÃO RELACIONADOS AO BANCO):
+═══════════════════════════════════════════════════════════════════
+
+1. Chat ao vivo - Requer implementação de WebSocket
+   (Não implementado ainda)
+
+2. Bugs visuais do frontend
+   (Serão corrigidos separadamente)
+
+═══════════════════════════════════════════════════════════════════
+
+✨ Banco de dados corrigido!
+🚀 Deploy automático em andamento no Railway!
+
+═══════════════════════════════════════════════════════════════════

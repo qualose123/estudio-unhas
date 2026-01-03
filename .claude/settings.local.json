@@ -46,7 +46,23 @@
       "Bash(git push)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Adiciona páginas completas do cliente e chat admin\n\nPáginas do Cliente:\n- ✅ Waitlist.jsx - Lista de espera com notificações\n  * Adicionar/remover da lista\n  * Status: aguardando, notificado, expirado, agendado\n  * Informações de data/hora desejadas\n  \n- ✅ RecurringAppointments.jsx - Agendamentos recorrentes\n  * Criar/editar/excluir agendamentos automáticos\n  * Periodicidade: semanal, quinzenal, mensal\n  * Pausar/ativar recorrência\n  * Histórico de agendamentos gerados\n\n- ✅ Profile.jsx - Perfil do cliente\n  * Editar informações pessoais\n  * Alterar senha\n  * Estatísticas do cliente\n\nPágina Admin:\n- ✅ ChatAdmin.jsx - Interface completa de chat\n  * Lista de conversas ativas\n  * Mensagens em tempo real via WebSocket\n  * Contador de mensagens não lidas\n  * Interface responsiva com 2 colunas\n\nRotas \\(App.jsx\\):\n- Adicionadas rotas cliente: /client/waitlist, /client/recurring, /client/profile\n- Adicionada rota admin: /admin/chat\n\nFeatures Implementadas:\n- Sistema de lista de espera completo\n- Agendamentos recorrentes automáticos\n- Perfil do cliente com alteração de senha\n- Chat admin com WebSocket real-time\n- Gestão de conversas e mensagens\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Integra cupons e melhora navegação completa do cliente\n\n🎯 Integração de Cupons no Agendamento \\(CRÍTICO\\):\n- ✅ Adicionada validação em tempo real de cupons\n- ✅ Cálculo automático de desconto \\(percentual ou fixo\\)\n- ✅ UI com feedback visual \\(banner verde de sucesso\\)\n- ✅ Resumo mostrando: preço original, desconto e total final\n- ✅ Botão para remover cupom aplicado\n- ✅ Integração com couponsAPI.validate\\(\\)\n- ✅ Envio do cupom validado ao criar agendamento\n\n📱 Navbar Completa com Todos os Links:\nDesktop:\n- ✅ Links públicos: Galeria e Avaliações \\(sempre visíveis\\)\n- ✅ Dropdown Admin: Dashboard, Gerenciar Galeria, Profissionais, \n  Comissões, Cupons, Relatório Financeiro, Chat\n- ✅ Dropdown Cliente: Meus Agendamentos, Lista de Espera, \n  Agendamentos Recorrentes, Meu Perfil\n- ✅ Animação no dropdown \\(rotate chevron\\)\n\nMobile:\n- ✅ Links públicos no topo\n- ✅ Separador visual\n- ✅ Todos os links admin/cliente organizados verticalmente\n- ✅ Ícones em todos os links\n\n🎨 ClientDashboard Melhorado:\n- ✅ Cards de acesso rápido para:\n  * Lista de Espera \\(com contador de itens aguardando\\)\n  * Agendamentos Recorrentes \\(com contador de ativos\\)\n  * Galeria de trabalhos\n  * Avaliações\n- ✅ Integração com waitlistAPI e recurringAPI\n- ✅ Badges mostrando quantidades quando relevante\n- ✅ Hover effects e animações\n- ✅ Links diretos para todas as funcionalidades\n\nArquivos Modificados:\n- frontend/src/pages/client/NewAppointmentModal.jsx\n- frontend/src/components/Navbar.jsx\n- frontend/src/pages/client/ClientDashboard.jsx\n\nImpacto:\n✨ Sistema de cupons agora totalmente funcional para clientes\n✨ Navegação intuitiva com acesso a todas as 16 funcionalidades\n✨ Dashboard do cliente com visão completa e acesso rápido\n✨ UX melhorada significativamente\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(timeout /t 5)",
+      "Bash(powershell -Command:*)",
+      "Bash(curl:*)",
+      "Bash(tasklist:*)",
+      "Bash(sqlite3:*)",
+      "Bash(node check-admin.js:*)",
+      "Bash(node test-password.js:*)",
+      "Bash(del check-admin.js test-password.js reset-admin.js)",
+      "Bash(echo:*)",
+      "Bash(__NEW_LINE__ cat frontend/DEPLOY_INSTRUCTIONS.txt)",
+      "Bash(powershell -Command \"Compress-Archive -Path * -DestinationPath ''..\\\\..\\\\frontend-hostgator-deploy.zip'' -Force\")",
+      "Bash(done)",
+      "Bash(find:*)",
+      "Bash(echo \"VITE_API_URL=https://estudio-unhas-production.up.railway.app/api\")",
+      "Bash(zip:*)",
+      "Bash(powershell -Command \"Compress-Archive -Path ''frontend-deploy-temp\\\\*'' -DestinationPath ''frontend-hostgator-final-fixed.zip'' -Force\")"
     ]
   }
 }
