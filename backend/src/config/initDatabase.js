@@ -261,11 +261,15 @@ const initPostgreSQL = async () => {
   await db.pool.query(`
     CREATE TABLE IF NOT EXISTS reviews (
       id SERIAL PRIMARY KEY,
+      appointment_id INTEGER UNIQUE REFERENCES appointments(id) ON DELETE CASCADE,
       client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
-      appointment_id INTEGER REFERENCES appointments(id) ON DELETE SET NULL,
+      service_id INTEGER NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+      professional_id INTEGER REFERENCES professionals(id) ON DELETE SET NULL,
       rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
       comment TEXT,
-      approved BOOLEAN DEFAULT false,
+      response TEXT,
+      response_date TIMESTAMP,
+      active BOOLEAN DEFAULT true,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )

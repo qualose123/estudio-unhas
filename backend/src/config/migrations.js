@@ -63,6 +63,46 @@ const runMigrations = async () => {
     `);
     console.log('✅ Migration 4: Índices criados para melhor performance');
 
+    // Migration 5: Adicionar colunas faltantes na tabela reviews
+    try {
+      await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS service_id INTEGER REFERENCES services(id) ON DELETE CASCADE`);
+      await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS professional_id INTEGER REFERENCES professionals(id) ON DELETE SET NULL`);
+      await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS response TEXT`);
+      await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS response_date TIMESTAMP`);
+      await db.pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true`);
+      console.log('✅ Migration 5: Colunas faltantes adicionadas em reviews');
+    } catch (err) {
+      console.log('⚠️  Migration 5: Algumas colunas já existem em reviews');
+    }
+
+    // Migration 6: Adicionar constraint UNIQUE em appointment_id na tabela reviews
+    await db.pool.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'reviews_appointment_id_key') THEN
+          ALTER TABLE reviews ADD CONSTRAINT reviews_appointment_id_key UNIQUE (appointment_id);
+        END IF;
+      END $$;
+    `);
+    console.log('✅ Migration 6: Constraint UNIQUE em reviews.appointment_id garantida');
+
+    // Migration 7: Remover coluna 'approved' se existir (substituída por 'active')
+    await db.pool.query(`
+      ALTER TABLE reviews
+      DROP COLUMN IF EXISTS approved
+    `);
+    console.log('✅ Migration 7: Coluna obsoleta "approved" removida de reviews');
+
+    // Migration 8: Adicionar índices para a tabela reviews
+    await db.pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_reviews_service_id ON reviews(service_id);
+      CREATE INDEX IF NOT EXISTS idx_reviews_professional_id ON reviews(professional_id);
+      CREATE INDEX IF NOT EXISTS idx_reviews_active ON reviews(active);
+      CREATE INDEX IF NOT EXISTS idx_reviews_rating ON reviews(rating);
+      CREATE INDEX IF NOT EXISTS idx_reviews_appointment_id ON reviews(appointment_id);
+    `);
+    console.log('✅ Migration 8: Índices criados para reviews');
+
     console.log('✅ Todas as migrations executadas com sucesso!');
   } catch (error) {
     console.error('❌ Erro ao rodar migrations:', error);
